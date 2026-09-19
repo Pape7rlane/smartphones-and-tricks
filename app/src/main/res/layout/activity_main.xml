@@ -89,7 +89,7 @@
 
             <TextView
                 android:id="@+id/stopButton"
-                style="@style/PpSR.FunctionButton"
+                style="@style/PpSRFunctionButton"
                 android:layout_marginTop="12dp"
                 android:text="停止服务器" />
 
@@ -103,11 +103,11 @@
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
-            <TextView android:id="@+id/tbButton" style="@style/PpSR.FunctionButton" android:text="切换开拓者命途" />
-            <TextView android:id="@+id/marchButton" style="@style/PpSR.FunctionButton" android:text="切换三月七命途" />
-            <TextView android:id="@+id/selectButton" style="@style/PpSR.FunctionButton" android:text="按命途选择角色" />
-            <TextView android:id="@+id/addPathButton" style="@style/PpSR.FunctionButton" android:text="整个命途加入" />
-            <TextView android:id="@+id/manualButton" style="@style/PpSR.FunctionButton" android:text="手动输入角色 ID" />
+            <TextView android:id="@+id/tbButton" style="@style/PpSRFunctionButton" android:text="切换开拓者命途" />
+            <TextView android:id="@+id/marchButton" style="@style/PpSRFunctionButton" android:text="切换三月七命途" />
+            <TextView android:id="@+id/selectButton" style="@style/PpSRFunctionButton" android:text="按命途选择角色" />
+            <TextView android:id="@+id/addPathButton" style="@style/PpSRFunctionButton" android:text="整个命途加入" />
+            <TextView android:id="@+id/manualButton" style="@style/PpSRFunctionButton" android:text="手动输入角色 ID" />
 
             <TextView
                 android:id="@+id/lineupValue"
@@ -120,9 +120,9 @@
                 android:textColor="#FFFFFF"
                 android:textSize="15sp" />
 
-            <TextView android:id="@+id/removeButton" style="@style/PpSR.FunctionButton" android:text="按序号删除角色" />
-            <TextView android:id="@+id/clearButton" style="@style/PpSR.FunctionButton" android:text="清空配队" />
-            <TextView android:id="@+id/iconButton" style="@style/PpSR.FunctionButton" android:text="切换 APK 图标（读取 res PNG）" />
+            <TextView android:id="@+id/removeButton" style="@style/PpSRFunctionButton" android:text="按序号删除角色" />
+            <TextView android:id="@+id/clearButton" style="@style/PpSRFunctionButton" android:text="清空配队" />
+            <TextView android:id="@+id/iconButton" style="@style/PpSRFunctionButton" android:text="切换 APK 图标（读取 res PNG）" />
         </LinearLayout>
     </ScrollView>
 </FrameLayout>
