@@ -1,0 +1,39 @@
+name: Build standalone Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "master"]
+    paths:
+      - "app/**"
+      - "build/**"
+      - "*.gradle"
+      - "gradle.properties"
+      - ".github/workflows/android.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+      - name: Build standalone APKs
+        run: gradle --no-daemon assembleDebug assembleRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ppSR-Standalone-APKs
+          path: .gradle-build/app/outputs/apk/**/*.apk
+          if-no-files-found: error
+          retention-days: 30

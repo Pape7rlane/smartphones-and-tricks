@@ -1,0 +1,47 @@
+plugins {
+    id 'com.android.application'
+    id 'com.chaquo.python'
+}
+
+layout.buildDirectory = file('../.gradle-build/app')
+
+def serverAssets = layout.buildDirectory.dir('generated/serverAssets')
+def syncServerAssets = tasks.register('syncServerAssets', Sync) {
+    from(rootProject.file('build'))
+    into(serverAssets.map { it.dir('server') })
+}
+
+android {
+    namespace 'com.ppsr.control'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.ppsr.control'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '4.5.54-1'
+        ndk { abiFilters 'arm64-v8a', 'x86_64' }
+    }
+    sourceSets { main { assets.srcDir(serverAssets) } }
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+chaquopy {
+    defaultConfig {
+        version = '3.14'
+        pip {
+            install 'Flask==3.1.2'
+            install 'requests==2.32.5'
+            install 'protobuf==6.30.2'
+            install 'dataclasses-json==0.6.7'
+        }
+    }
+}
+
+tasks.named('preBuild').configure { dependsOn(syncServerAssets) }

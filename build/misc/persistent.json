@@ -1,0 +1,55 @@
+{
+    "send_hotfix": false,
+    "scene": {
+        "plane_id": 20313,
+        "x": 40748,
+        "y": 192819,
+        "z": 439218,
+        "calyx_x": 40748,
+        "calyx_y": 192810,
+        "calyx_z": 441000,
+        "map_layer": 2,
+        "calyx_group_id": 186,
+        "calyx_inst_id": 300001,
+        "calyx_entity_id": 1337,
+        "calyx_prop_id": 808
+    },
+    "avatar": {
+        "tb_gender": "Female",
+        "tb_path": "Preservation",
+        "march_path": "Preservation",
+        "skin": {
+            "1001": 1100101,
+            "1310": 1131001,
+            "1415": 1141501,
+            "1407": 1140701,
+            "1501": 1150101
+        },
+        "lineup": [
+            1506,
+            1504,
+            1513,
+            8009,
+            1502,
+            1501,
+            1503
+        ],
+        "global_passive": [
+            {
+                "name": "Castorice Global Passive",
+                "id": 140703,
+                "active": true
+            },
+            {
+                "name": "SW999 Global Passsive",
+                "id": 150602,
+                "active": true
+            }
+        ],
+        "buff": [
+            1000121
+        ],
+        "leader": 0
+    },
+    "key": "ZY4TH9VN"
+}

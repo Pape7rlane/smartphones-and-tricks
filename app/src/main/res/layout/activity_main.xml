@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/background" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#55000000" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:clipToPadding="false">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="28dp"
+            android:paddingTop="48dp"
+            android:paddingRight="28dp"
+            android:paddingBottom="32dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ppSR"
+                android:textColor="#FFFFFF"
+                android:textSize="38sp"
+                android:textStyle="bold"
+                android:shadowColor="#B0000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="5" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="4.5.54"
+                android:textColor="#F2F2F2"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:shadowColor="#B0000000"
+                android:shadowDx="1"
+                android:shadowDy="1"
+                android:shadowRadius="3" />
+
+            <TextView
+                android:id="@+id/serverState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="54dp"
+                android:background="@drawable/bg_status_glass"
+                android:paddingLeft="22dp"
+                android:paddingTop="11dp"
+                android:paddingRight="22dp"
+                android:paddingBottom="11dp"
+                android:text="服务器已停止"
+                android:textColor="#FFFFFF"
+                android:textSize="21sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/startButton"
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:layout_marginLeft="18dp"
+                android:layout_marginTop="42dp"
+                android:layout_marginRight="18dp"
+                android:background="@drawable/bg_primary_button"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="启动服务器"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/stopButton"
+                style="@style/PpSR.FunctionButton"
+                android:layout_marginTop="12dp"
+                android:text="停止服务器" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="4dp"
+                android:text="快捷功能"
+                android:textColor="#FFFFFF"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView android:id="@+id/tbButton" style="@style/PpSR.FunctionButton" android:text="切换开拓者命途" />
+            <TextView android:id="@+id/marchButton" style="@style/PpSR.FunctionButton" android:text="切换三月七命途" />
+            <TextView android:id="@+id/selectButton" style="@style/PpSR.FunctionButton" android:text="按命途选择角色" />
+            <TextView android:id="@+id/addPathButton" style="@style/PpSR.FunctionButton" android:text="整个命途加入" />
+            <TextView android:id="@+id/manualButton" style="@style/PpSR.FunctionButton" android:text="手动输入角色 ID" />
+
+            <TextView
+                android:id="@+id/lineupValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_status_glass"
+                android:padding="16dp"
+                android:text="当前配队：正在读取..."
+                android:textColor="#FFFFFF"
+                android:textSize="15sp" />
+
+            <TextView android:id="@+id/removeButton" style="@style/PpSR.FunctionButton" android:text="按序号删除角色" />
+            <TextView android:id="@+id/clearButton" style="@style/PpSR.FunctionButton" android:text="清空配队" />
+            <TextView android:id="@+id/iconButton" style="@style/PpSR.FunctionButton" android:text="切换 APK 图标（读取 res PNG）" />
+        </LinearLayout>
+    </ScrollView>
+</FrameLayout>
