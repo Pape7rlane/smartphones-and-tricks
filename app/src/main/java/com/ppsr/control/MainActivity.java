@@ -9,16 +9,23 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.json.JSONTokener;
 
 public class MainActivity extends Activity {
     private TextView serverState;
@@ -63,6 +70,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.removeButton).setOnClickListener(v -> inputRemoveIndex());
         findViewById(R.id.clearButton).setOnClickListener(v -> confirmClear());
         findViewById(R.id.iconButton).setOnClickListener(v -> chooseIcon());
+        findViewById(R.id.miscButton).setOnClickListener(v -> openMisc());
     }
 
     @Override protected void onStart() {
@@ -192,6 +200,78 @@ public class MainActivity extends Activity {
                     IconSwitcher.apply(this, which);
                     toast("PNG 图标已切换，桌面可能需要几秒刷新");
                 }).setNegativeButton("取消", null).show();
+    }
+
+    private void openMisc() {
+        try {
+            File misc = new File(ServerFiles.install(this), "misc");
+            List<File> files = new ArrayList<>();
+            collectJsonFiles(misc, files);
+            Collections.sort(files, (left, right) ->
+                    left.getAbsolutePath().compareToIgnoreCase(right.getAbsolutePath()));
+            if (files.isEmpty()) {
+                toast("misc 目录中没有 JSON 文件");
+                return;
+            }
+            String[] labels = new String[files.size()];
+            for (int i = 0; i < files.size(); i++) {
+                labels[i] = misc.toPath().relativize(files.get(i).toPath()).toString()
+                        .replace(File.separatorChar, '/');
+            }
+            new AlertDialog.Builder(this).setTitle("misc 文件")
+                    .setItems(labels, (dialog, which) -> editMiscFile(labels[which], files.get(which)))
+                    .setNegativeButton("关闭", null).show();
+        } catch (Exception error) {
+            showError(error);
+        }
+    }
+
+    private void collectJsonFiles(File directory, List<File> result) {
+        File[] children = directory.listFiles();
+        if (children == null) return;
+        for (File child : children) {
+            if (child.isDirectory()) collectJsonFiles(child, result);
+            else if (child.getName().toLowerCase().endsWith(".json")) result.add(child);
+        }
+    }
+
+    private void editMiscFile(String relativePath, File file) {
+        try {
+            EditText editor = new EditText(this);
+            editor.setText(new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8));
+            editor.setTextSize(13);
+            editor.setTypeface(Typeface.MONOSPACE);
+            editor.setGravity(Gravity.TOP | Gravity.START);
+            editor.setInputType(InputType.TYPE_CLASS_TEXT
+                    | InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                    | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+            editor.setHorizontallyScrolling(true);
+            editor.setMinLines(16);
+            editor.setMaxLines(24);
+            editor.setPadding(32, 20, 32, 20);
+
+            AlertDialog dialog = new AlertDialog.Builder(this).setTitle(relativePath)
+                    .setView(editor)
+                    .setPositiveButton("保存", null)
+                    .setNegativeButton("取消", null)
+                    .create();
+            dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                    .setOnClickListener(view -> {
+                        try {
+                            String value = editor.getText().toString();
+                            new JSONTokener(value).nextValue();
+                            Files.write(file.toPath(), value.getBytes(StandardCharsets.UTF_8));
+                            refreshLineup();
+                            toast("已保存，重启服务后生效");
+                            dialog.dismiss();
+                        } catch (Exception error) {
+                            editor.setError("JSON 格式错误：" + error.getMessage());
+                        }
+                    }));
+            dialog.show();
+        } catch (Exception error) {
+            showError(error);
+        }
     }
 
     private void requestNotificationPermission() {

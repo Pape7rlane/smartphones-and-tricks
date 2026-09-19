@@ -123,6 +123,7 @@
             <TextView android:id="@+id/removeButton" style="@style/PpSRFunctionButton" android:text="按序号删除角色" />
             <TextView android:id="@+id/clearButton" style="@style/PpSRFunctionButton" android:text="清空配队" />
             <TextView android:id="@+id/iconButton" style="@style/PpSRFunctionButton" android:text="切换 APK 图标（读取 res PNG）" />
+            <TextView android:id="@+id/miscButton" style="@style/PpSRFunctionButton" android:text="打开 misc 文件" />
         </LinearLayout>
     </ScrollView>
 </FrameLayout>
