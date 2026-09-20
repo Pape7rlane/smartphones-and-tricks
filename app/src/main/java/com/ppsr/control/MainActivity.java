@@ -30,10 +30,13 @@ import org.json.JSONTokener;
 
 public class MainActivity extends Activity {
     private static final long LARGE_JSON_SIZE = 512 * 1024;
+    private static final String SRTOOLS_URL = "https://srtools.neonteam.dev/1001/detail";
     private TextView serverState;
     private TextView startButton;
     private TextView lineupValue;
     private boolean receiverRegistered;
+    private boolean storageInitialized;
+    private boolean notificationPermissionRequested;
 
     private final BroadcastReceiver stateReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) {
@@ -53,9 +56,7 @@ public class MainActivity extends Activity {
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         setContentView(R.layout.activity_main);
         bindViews();
-        try { ServerFiles.install(this); refreshLineup(); }
-        catch (Exception error) { showError(error); }
-        requestNotificationPermission();
+        ensureStorageAccess();
     }
 
     private void bindViews() {
@@ -73,6 +74,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.clearButton).setOnClickListener(v -> confirmClear());
         findViewById(R.id.iconButton).setOnClickListener(v -> chooseIcon());
         findViewById(R.id.miscButton).setOnClickListener(v -> openMisc());
+        findViewById(R.id.srtoolsButton).setOnClickListener(v -> openSrTools());
     }
 
     @Override protected void onStart() {
@@ -84,15 +86,53 @@ public class MainActivity extends Activity {
         refreshLineup();
     }
 
+    @Override protected void onResume() {
+        super.onResume();
+        if (StorageAccess.isGranted(this)) {
+            if (!storageInitialized) initializeStorage();
+            if (!notificationPermissionRequested) {
+                notificationPermissionRequested = true;
+                requestNotificationPermission();
+            }
+        }
+    }
+
     @Override protected void onStop() {
         if (receiverRegistered) { unregisterReceiver(stateReceiver); receiverRegistered = false; }
         super.onStop();
     }
 
     private void startServer() {
+        if (!ensureStorageAccess()) return;
         Intent intent = new Intent(this, PythonServerService.class).setAction(PythonServerService.ACTION_START);
         if (Build.VERSION.SDK_INT >= 26) startForegroundService(intent); else startService(intent);
         serverState.setText("服务器正在启动");
+    }
+
+    protected boolean ensureStorageAccess() {
+        if (StorageAccess.isGranted(this)) {
+            if (!storageInitialized) initializeStorage();
+            return storageInitialized;
+        }
+        StorageAccess.request(this);
+        toast("请允许访问所有文件，用于创建 Download/ppSR");
+        return false;
+    }
+
+    private void initializeStorage() {
+        try {
+            ServerFiles.install(this);
+            storageInitialized = true;
+            refreshLineup();
+        } catch (Exception error) {
+            storageInitialized = false;
+            showError(error);
+        }
+    }
+
+    private void openSrTools() {
+        if (!ensureStorageAccess()) return;
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SRTOOLS_URL)));
     }
 
     private void stopServer() {
