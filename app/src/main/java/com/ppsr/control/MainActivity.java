@@ -10,6 +10,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
@@ -28,6 +29,7 @@ import java.util.List;
 import org.json.JSONTokener;
 
 public class MainActivity extends Activity {
+    private static final long LARGE_JSON_SIZE = 512 * 1024;
     private TextView serverState;
     private TextView startButton;
     private TextView lineupValue;
@@ -219,7 +221,7 @@ public class MainActivity extends Activity {
                         .replace(File.separatorChar, '/');
             }
             new AlertDialog.Builder(this).setTitle("misc 文件")
-                    .setItems(labels, (dialog, which) -> editMiscFile(labels[which], files.get(which)))
+                    .setItems(labels, (dialog, which) -> openJsonFile(labels[which], files.get(which)))
                     .setNegativeButton("关闭", null).show();
         } catch (Exception error) {
             showError(error);
@@ -232,6 +234,36 @@ public class MainActivity extends Activity {
         for (File child : children) {
             if (child.isDirectory()) collectJsonFiles(child, result);
             else if (child.getName().toLowerCase().endsWith(".json")) result.add(child);
+        }
+    }
+
+    private void openJsonFile(String relativePath, File file) {
+        if (file.length() < LARGE_JSON_SIZE) {
+            editMiscFile(relativePath, file);
+            return;
+        }
+        String size = String.format(java.util.Locale.ROOT, "%.1f MB",
+                file.length() / (1024.0 * 1024.0));
+        new AlertDialog.Builder(this)
+                .setTitle("大文件：" + relativePath)
+                .setMessage("文件大小为 " + size + "，使用内置编辑器可能卡顿。")
+                .setPositiveButton("选择外部应用", (dialog, which) -> openWithExternalApp(file))
+                .setNegativeButton("仍用内置编辑", (dialog, which) -> editMiscFile(relativePath, file))
+                .setNeutralButton("取消", null)
+                .show();
+    }
+
+    private void openWithExternalApp(File file) {
+        try {
+            Uri uri = MiscFileProvider.uriForFile(this, file);
+            Intent edit = new Intent(Intent.ACTION_EDIT)
+                    .setDataAndType(uri, "text/plain")
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                    .setClipData(android.content.ClipData.newRawUri(file.getName(), uri));
+            startActivity(Intent.createChooser(edit, "选择文件管理器或编辑器"));
+        } catch (Exception error) {
+            showError(error);
         }
     }
 
