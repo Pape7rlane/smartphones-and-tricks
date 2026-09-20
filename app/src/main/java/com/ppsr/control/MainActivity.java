@@ -259,8 +259,8 @@ public class MainActivity extends Activity {
             Intent edit = new Intent(Intent.ACTION_EDIT)
                     .setDataAndType(uri, "text/plain")
                     .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-                    .setClipData(android.content.ClipData.newRawUri(file.getName(), uri));
+                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            edit.setClipData(android.content.ClipData.newRawUri(file.getName(), uri));
             startActivity(Intent.createChooser(edit, "选择文件管理器或编辑器"));
         } catch (Exception error) {
             showError(error);
