@@ -1,5 +1,5 @@
 {
-    "send_hotfix": false,
+    "send_hotfix": true,
     "scene": {
         "plane_id": 20313,
         "x": 40748,
@@ -16,7 +16,7 @@
     },
     "avatar": {
         "tb_gender": "Female",
-        "tb_path": "Preservation",
+        "tb_path": "Elation",
         "march_path": "Preservation",
         "skin": {
             "1001": 1100101,
@@ -26,13 +26,10 @@
             "1501": 1150101
         },
         "lineup": [
-            1506,
-            1504,
-            1513,
-            8009,
-            1502,
             1501,
-            1503
+            1503,
+            1502,
+            1506
         ],
         "global_passive": [
             {
@@ -51,5 +48,5 @@
         ],
         "leader": 0
     },
-    "key": "ZY4TH9VN"
+    "key": ""
 }
