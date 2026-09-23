@@ -23,7 +23,7 @@ final class ConfigStore {
     static synchronized void addIds(Context context, List<Integer> ids) throws Exception {
         JSONObject root = read(context);
         JSONArray lineup = root.getJSONObject("avatar").getJSONArray("lineup");
-        for (int id : ids) if (!contains(lineup, id)) lineup.put(id);
+        for (int id : ids) lineup.put(id);
         write(context, root);
     }
 

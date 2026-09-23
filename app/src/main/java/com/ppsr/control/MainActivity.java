@@ -231,7 +231,7 @@ public class MainActivity extends Activity {
             List<Integer> ids = ConfigStore.lineup(this);
             if (ids.isEmpty()) { lineupValue.setText("当前配队：暂无角色"); return; }
             StringBuilder value = new StringBuilder("当前配队\n");
-            for (int i = 0; i < ids.size(); i++) value.append(i + 1).append(". ").append(ids.get(i)).append('\n');
+            for (int i = 0; i < ids.size(); i++) { int id = ids.get(i); String name = CharacterData.nameOf(id); value.append(i + 1).append(". ").append(id); if (name != null) value.append(" - ").append(name); value.append('\n'); }
             lineupValue.setText(value.toString().trim());
         } catch (Exception error) { lineupValue.setText("配队读取失败：" + error.getMessage()); }
     }
