@@ -19,7 +19,7 @@ android {
         minSdk 26
         targetSdk 35
         versionCode 2
-        versionName '4.5.54-2'
+        versionName '4.5.54'
         ndk { abiFilters 'arm64-v8a', 'x86_64' }
     }
     sourceSets { main { assets.srcDir(serverAssets) } }
