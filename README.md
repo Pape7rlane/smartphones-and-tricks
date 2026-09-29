@@ -1,4 +1,4 @@
-# ppSR 4.5.54 Android
+# ppSR 4.6.51 Android
 
 无需 Termux 的 ppSR Android 独立版。APK 内嵌 Python 3.14、原始服务端字节码和运行依赖，
 可直接在手机上启动 `127.0.0.1:21000` 服务。
@@ -14,8 +14,18 @@ APK 图标、全屏背景、服务器状态和半透明功能按钮。
 - 按命途选择角色或加入整个命途。
 - 手动输入多个角色 ID、按序号删除、清空配队。
 - 在三套 `res` PNG 桌面图标之间动态切换。
-- 更新 APK 时保留密码和 `persistent.json` 配置。
+- 更新 APK 时保留 `persistent.json` 和 `freesr-data.json`；版本对应的 `hotfix.json` 会更新。
 - 在 App 内直接打开、编辑并保存 misc 目录中的 JSON 文件。
+
+## 存储目录与 SRTools
+
+- 首次启动会请求“所有文件访问”权限，并自动创建
+  `/storage/emulated/0/Download/ppSR`；整套服务端直接从该目录运行。
+- 启动服务器后，点击“打开 SRTools 完整配置”进入
+  `https://srtools.neonteam.dev/1001/detail`。
+- 在网站的 **Connect PS** 中保留默认 `RobinSR` 和 `http://localhost:21000`，先点
+  **Connect**，配置完成后点 **Sync**。网站会把角色、终结技能量、技能、光锥、遗器、
+  怪物和战斗配置完整写入 `Download/ppSR/misc/freesr-data.json`。
 
 ## 密码读取与更新逻辑
 

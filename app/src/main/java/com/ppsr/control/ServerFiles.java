@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 final class ServerFiles {
-    private static final String PAYLOAD_VERSION = "4.5.54-2";
+    private static final String PAYLOAD_VERSION = "4.6.51-1";
     private ServerFiles() {}
 
     static File directory(Context context) {
@@ -58,7 +58,6 @@ final class ServerFiles {
     private static boolean isUserData(File serverRoot, File target) {
         File misc = new File(serverRoot, "misc");
         return target.equals(new File(misc, "persistent.json"))
-                || target.equals(new File(misc, "freesr-data.json"))
-                || target.equals(new File(misc, "hotfix.json"));
+                || target.equals(new File(misc, "freesr-data.json"));
     }
 }
