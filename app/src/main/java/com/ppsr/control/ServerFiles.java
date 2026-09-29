@@ -2,6 +2,7 @@ package com.ppsr.control;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.os.Environment;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,11 +12,12 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 
 final class ServerFiles {
-    private static final String PAYLOAD_VERSION = "4.5.54-1";
+    private static final String PAYLOAD_VERSION = "4.5.54-2";
     private ServerFiles() {}
 
     static File directory(Context context) {
-        return new File(context.getFilesDir(), "server");
+        return new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS), "ppSR");
     }
 
     static synchronized File install(Context context) throws IOException {
@@ -40,8 +42,7 @@ final class ServerFiles {
             }
             return;
         }
-        File persistent = new File(serverRoot, "misc/persistent.json");
-        if (target.equals(persistent) && target.isFile()) return;
+        if (isUserData(serverRoot, target) && target.isFile()) return;
         File parent = target.getParentFile();
         if (parent != null && !parent.isDirectory() && !parent.mkdirs()) {
             throw new IOException("Cannot create " + parent);
@@ -52,5 +53,12 @@ final class ServerFiles {
             int count;
             while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
         }
+    }
+
+    private static boolean isUserData(File serverRoot, File target) {
+        File misc = new File(serverRoot, "misc");
+        return target.equals(new File(misc, "persistent.json"))
+                || target.equals(new File(misc, "freesr-data.json"))
+                || target.equals(new File(misc, "hotfix.json"));
     }
 }

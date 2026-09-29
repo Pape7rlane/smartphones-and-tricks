@@ -13,7 +13,9 @@ public class PasswordMainActivity extends MainActivity {
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         TextView start = findViewById(R.id.startButton);
-        start.setOnClickListener(v -> showPasswordDialog());
+        start.setOnClickListener(v -> {
+            if (ensureStorageAccess()) showPasswordDialog();
+        });
     }
 
     private void showPasswordDialog() {
@@ -47,6 +49,7 @@ public class PasswordMainActivity extends MainActivity {
     }
 
     private void startServerWithSavedPassword() {
+        if (!ensureStorageAccess()) return;
         Intent intent = new Intent(this, PythonServerService.class)
                 .setAction(PythonServerService.ACTION_START);
         if (Build.VERSION.SDK_INT >= 26) startForegroundService(intent);

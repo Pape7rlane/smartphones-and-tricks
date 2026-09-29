@@ -7981,6 +7981,121 @@
     ]
   },
   {
+    "AvatarID": 1511,
+    "AvatarName": {
+      "Hash": -1076240678,
+      "Hash64": 12653203655511224443
+    },
+    "AvatarFullName": {
+      "Hash": 724158747,
+      "Hash64": 7884683580397389352
+    },
+    "AdventurePlayerID": 1511,
+    "AvatarVOTag": "himekonova",
+    "Rarity": "CombatPowerAvatarRarityType5",
+    "AvatarInitialSkinName": {
+      "Hash": 0,
+      "Hash64": 0
+    },
+    "AvatarInitialSkinDesc": {
+      "Hash": 0,
+      "Hash64": 0
+    },
+    "JsonPath": "Config/ConfigCharacter/Avatar/Avatar_HimekoNova_00_Config.json",
+    "DamageType": "Quantum",
+    "SPNeed": {
+      "Value": 150
+    },
+    "ExpGroup": 1,
+    "MaxPromotion": 6,
+    "MaxRank": 6,
+    "RankIDList": [
+      151001,
+      151002,
+      151003,
+      151004,
+      151005,
+      151006
+    ],
+    "SkillList": [
+      151001,
+      151002,
+      151003,
+      151004,
+      151006,
+      151007,
+      151008,
+      151009,
+      151014,
+      151022,
+      151025,
+      151026
+    ],
+    "AvatarBaseType": "Mage",
+    "DefaultAvatarModelPath": "Characters/CharacterPrefabs/Avatar/HimekoNova_00/Avatar_HimekoNova_00.prefab",
+    "DefaultAvatarHeadIconPath": "SpriteOutput/AvatarIcon/Avatar/1510.png",
+    "AvatarSideIconPath": "SpriteOutput/AvatarRoundIcon/Avatar/1510.png",
+    "AvatarMiniIconPath": "SpriteOutput/AvatarMiniIcon/1510.png",
+    "AvatarGachaResultImgPath": "SpriteOutput/AvatarDrawCardResult/1510.png",
+    "ActionAvatarHeadIconPath": "SpriteOutput/AvatarIconTeam/1510B.png",
+    "UltraSkillCutInPrefabPath": "UI/Battle/UltraSkillCutIn/Avatar/UltraSkillCutIn_1510.prefab",
+    "UIAvatarModelPath": "Characters/CharacterPrefabs/Manikin/Avatar/HimekoNova_00/Manikin_Avatar_Lady_HimekoNova_00.prefab",
+    "ManikinJsonPath": "Config/ConfigCharacter/Manikin/Avatar/Manikin_Avatar_HimekoNova_00_Config.json",
+    "AvatarDesc": {
+      "Hash": 0,
+      "Hash64": 0
+    },
+    "AIPath": "Config/ConfigAI/ComplexSkillAIGlobalGroup/Avatar/Avatar_HimekoNova_00_ComplexSkillAI.json",
+    "SkilltreePrefabPath": "UI/Avatar/Widget/MageSkillTreeGroup.prefab",
+    "DamageTypeResistance": [],
+    "Release": true,
+    "SideAvatarHeadIconPath": "SpriteOutput/AvatarIconTeam/1510.png",
+    "WaitingAvatarHeadIconPath": "SpriteOutput/AvatarIconTeam/1510.png",
+    "AvatarCutinImgPath": "SpriteOutput/AvatarCutinFigures/1510.png",
+    "AvatarCutinBgImgPath": "SpriteOutput/AvatarCutinBg/1510.png",
+    "AvatarCutinFrontImgPath": "SpriteOutput/AvatarDrawCard/1510.png",
+    "AvatarCutinIntroText": {
+      "Hash": 1175625641,
+      "Hash64": 9619839565503429476
+    },
+    "AvatarDropOffset": [
+      80,
+      -19,
+      0.64,
+      80,
+      -19,
+      0.64,
+      80,
+      -19,
+      0.64
+    ],
+    "AvatarTrialOffset": [
+      135.4,
+      24,
+      1
+    ],
+    "PlayerCardOffset": [
+      65.3,
+      102.2,
+      1.05
+    ],
+    "AssistOffset": [
+      62,
+      42,
+      1.3
+    ],
+    "AssistBgOffset": [
+      108,
+      12,
+      1
+    ],
+    "AvatarSelfShowOffset": [
+      -16,
+      26,
+      5
+    ]
+  },
+  {
     "AvatarID": 1512,
     "AvatarName": {
       "Hash": 86558736,
