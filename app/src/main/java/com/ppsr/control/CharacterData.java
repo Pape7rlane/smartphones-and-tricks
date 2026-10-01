@@ -144,6 +144,8 @@ final class CharacterData {
         names.put(8010, "开拓者•欢愉•星");
         NAMES = Collections.unmodifiableMap(names);
 
+        // Names follow the English text map used by SRTools. Its {NICKNAME}
+        // Trailblazer placeholders are expanded here by path and gender.
         Map<Integer, String> englishNames = new LinkedHashMap<>();
         englishNames.put(1008, "Arlan");
         englishNames.put(1014, "Saber");
@@ -173,7 +175,7 @@ final class CharacterData {
         englishNames.put(1224, "March 7th");
         englishNames.put(1305, "Dr. Ratio");
         englishNames.put(1315, "Boothill");
-        englishNames.put(1504, "Deathless Path");
+        englishNames.put(1504, "Ashveil");
 
         englishNames.put(1003, "Himeko");
         englishNames.put(1013, "Herta");
@@ -186,7 +188,7 @@ final class CharacterData {
         englishNames.put(1401, "The Herta");
         englishNames.put(1405, "Anaxa");
         englishNames.put(1508, "Rin Tohsaka");
-        englishNames.put(1510, "Himeko • Departure");
+        englishNames.put(1510, "Himeko • Nova");
 
         englishNames.put(1009, "Asta");
         englishNames.put(1101, "Bronya");
@@ -216,7 +218,7 @@ final class CharacterData {
         englishNames.put(1321, "The Dahlia");
         englishNames.put(1406, "Cipher");
         englishNames.put(1410, "Hysilens");
-        englishNames.put(1507, "Chiye • Blade");
+        englishNames.put(1507, "Mortenax Blade");
 
         englishNames.put(1001, "March 7th");
         englishNames.put(1104, "Gepard");
@@ -239,17 +241,17 @@ final class CharacterData {
         englishNames.put(1409, "Hyacine");
         englishNames.put(1413, "Evernight");
         englishNames.put(1415, "Cyrene");
-        englishNames.put(1512, "Robin • Sunlit Song");
+        englishNames.put(1512, "Robin • Summeretto");
         englishNames.put(8007, "Trailblazer • Remembrance • Caelus");
         englishNames.put(8008, "Trailblazer • Remembrance • Stelle");
 
-        englishNames.put(1501, "Sparkle");
+        englishNames.put(1501, "Sparxie");
         englishNames.put(1502, "Yao Guang");
         englishNames.put(1503, "Pearl");
-        englishNames.put(1505, "Feiying");
+        englishNames.put(1505, "Evanescia");
         englishNames.put(1506, "Silver Wolf LV.<unbreak>999</unbreak>");
-        englishNames.put(1511, "Aha the Elation");
-        englishNames.put(1513, "Aventurine • Wavechaser");
+        englishNames.put(1511, "Aeon ★ Aha");
+        englishNames.put(1513, "Aventurine • Waveflair");
         englishNames.put(8009, "Trailblazer • Elation • Caelus");
         englishNames.put(8010, "Trailblazer • Elation • Stelle");
         ENGLISH_NAMES = Collections.unmodifiableMap(englishNames);
