@@ -15,6 +15,7 @@
         android:allowBackup="true"
         android:icon="@drawable/icon_default"
         android:label="ppSR 4.6.51"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/icon_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PpSR">
