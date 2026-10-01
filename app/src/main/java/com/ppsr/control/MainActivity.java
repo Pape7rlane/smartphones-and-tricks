@@ -292,7 +292,8 @@ public class MainActivity extends Activity {
             List<Integer> ids = ConfigStore.lineup(this);
             if (ids.isEmpty()) { lineupValue.setText(ui(R.string.lineup_empty)); return; }
             StringBuilder value = new StringBuilder(ui(R.string.lineup_heading)).append('\n');
-            for (int i = 0; i < ids.size(); i++) { int id = ids.get(i); String name = CharacterData.nameOf(id); value.append(i + 1).append(". ").append(id); if (name != null) value.append(" - ").append(name); value.append('\n'); }
+            boolean english = UiLanguage.isEnglish(this);
+            for (int i = 0; i < ids.size(); i++) { int id = ids.get(i); String name = CharacterData.nameOf(id, english); value.append(i + 1).append(". ").append(id); if (name != null) value.append(" - ").append(name); value.append('\n'); }
             lineupValue.setText(value.toString().trim());
         } catch (Exception error) {
             lineupValue.setText(ui(R.string.lineup_read_failed, error.getMessage()));

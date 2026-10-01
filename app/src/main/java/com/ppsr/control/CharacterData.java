@@ -11,6 +11,7 @@ final class CharacterData {
     static final String[] PATH_VALUES = {"Destruction", "Hunt", "Erudition", "Harmony", "Nihility", "Preservation", "Abundance", "Remembrance", "Elation"};
     static final Map<String, List<Integer>> PATHS;
     static final Map<Integer, String> NAMES;
+    static final Map<Integer, String> ENGLISH_NAMES;
     static {
         Map<String, List<Integer>> paths = new LinkedHashMap<>();
         // 毁灭
@@ -142,8 +143,121 @@ final class CharacterData {
         names.put(8009, "开拓者•欢愉•穹");
         names.put(8010, "开拓者•欢愉•星");
         NAMES = Collections.unmodifiableMap(names);
+
+        Map<Integer, String> englishNames = new LinkedHashMap<>();
+        englishNames.put(1008, "Arlan");
+        englishNames.put(1014, "Saber");
+        englishNames.put(1107, "Clara");
+        englishNames.put(1109, "Hook");
+        englishNames.put(1205, "Blade");
+        englishNames.put(1212, "Jingliu");
+        englishNames.put(1213, "Dan Heng • Imbibitor Lunae");
+        englishNames.put(1214, "Xueyi");
+        englishNames.put(1221, "Yunli");
+        englishNames.put(1310, "Firefly");
+        englishNames.put(1312, "Misha");
+        englishNames.put(1404, "Mydei");
+        englishNames.put(1408, "Phainon");
+        englishNames.put(1509, "Gilgamesh");
+        englishNames.put(8001, "Trailblazer • Destruction • Caelus");
+        englishNames.put(8002, "Trailblazer • Destruction • Stelle");
+
+        englishNames.put(1002, "Dan Heng");
+        englishNames.put(1015, "Archer");
+        englishNames.put(1102, "Seele");
+        englishNames.put(1112, "Topaz & Numby");
+        englishNames.put(1206, "Sushang");
+        englishNames.put(1209, "Yanqing");
+        englishNames.put(1220, "Feixiao");
+        englishNames.put(1223, "Moze");
+        englishNames.put(1224, "March 7th");
+        englishNames.put(1305, "Dr. Ratio");
+        englishNames.put(1315, "Boothill");
+        englishNames.put(1504, "Deathless Path");
+
+        englishNames.put(1003, "Himeko");
+        englishNames.put(1013, "Herta");
+        englishNames.put(1103, "Serval");
+        englishNames.put(1201, "Qingque");
+        englishNames.put(1204, "Jing Yuan");
+        englishNames.put(1302, "Argenti");
+        englishNames.put(1314, "Jade");
+        englishNames.put(1317, "Rappa");
+        englishNames.put(1401, "The Herta");
+        englishNames.put(1405, "Anaxa");
+        englishNames.put(1508, "Rin Tohsaka");
+        englishNames.put(1510, "Himeko • Departure");
+
+        englishNames.put(1009, "Asta");
+        englishNames.put(1101, "Bronya");
+        englishNames.put(1202, "Tingyun");
+        englishNames.put(1207, "Yukong");
+        englishNames.put(1215, "Hanya");
+        englishNames.put(1303, "Ruan Mei");
+        englishNames.put(1306, "Sparkle");
+        englishNames.put(1309, "Robin");
+        englishNames.put(1313, "Sunday");
+        englishNames.put(1403, "Tribbie");
+        englishNames.put(1412, "Cerydra");
+        englishNames.put(8005, "Trailblazer • Harmony • Caelus");
+        englishNames.put(8006, "Trailblazer • Harmony • Stelle");
+
+        englishNames.put(1004, "Welt");
+        englishNames.put(1005, "Kafka");
+        englishNames.put(1006, "Silver Wolf");
+        englishNames.put(1106, "Pela");
+        englishNames.put(1108, "Sampo");
+        englishNames.put(1111, "Luka");
+        englishNames.put(1210, "Guinaifen");
+        englishNames.put(1218, "Jiaoqiu");
+        englishNames.put(1225, "Fugue");
+        englishNames.put(1307, "Black Swan");
+        englishNames.put(1308, "Acheron");
+        englishNames.put(1321, "The Dahlia");
+        englishNames.put(1406, "Cipher");
+        englishNames.put(1410, "Hysilens");
+        englishNames.put(1507, "Chiye • Blade");
+
+        englishNames.put(1001, "March 7th");
+        englishNames.put(1104, "Gepard");
+        englishNames.put(1208, "Fu Xuan");
+        englishNames.put(1304, "Aventurine");
+        englishNames.put(1414, "Dan Heng • Permansor Terrae");
+        englishNames.put(8003, "Trailblazer • Preservation • Caelus");
+        englishNames.put(8004, "Trailblazer • Preservation • Stelle");
+
+        englishNames.put(1105, "Natasha");
+        englishNames.put(1110, "Lynx");
+        englishNames.put(1203, "Luocha");
+        englishNames.put(1211, "Bailu");
+        englishNames.put(1217, "Huohuo");
+        englishNames.put(1222, "Lingsha");
+        englishNames.put(1301, "Gallagher");
+
+        englishNames.put(1402, "Aglaea");
+        englishNames.put(1407, "Castorice");
+        englishNames.put(1409, "Hyacine");
+        englishNames.put(1413, "Evernight");
+        englishNames.put(1415, "Cyrene");
+        englishNames.put(1512, "Robin • Sunlit Song");
+        englishNames.put(8007, "Trailblazer • Remembrance • Caelus");
+        englishNames.put(8008, "Trailblazer • Remembrance • Stelle");
+
+        englishNames.put(1501, "Sparkle");
+        englishNames.put(1502, "Yao Guang");
+        englishNames.put(1503, "Pearl");
+        englishNames.put(1505, "Feiying");
+        englishNames.put(1506, "Silver Wolf LV.<unbreak>999</unbreak>");
+        englishNames.put(1511, "Aha the Elation");
+        englishNames.put(1513, "Aventurine • Wavechaser");
+        englishNames.put(8009, "Trailblazer • Elation • Caelus");
+        englishNames.put(8010, "Trailblazer • Elation • Stelle");
+        ENGLISH_NAMES = Collections.unmodifiableMap(englishNames);
     }
     static String nameOf(int id) { return NAMES.get(id); }
+    static String nameOf(int id, boolean english) {
+        return english ? ENGLISH_NAMES.get(id) : NAMES.get(id);
+    }
     static String displayNameOf(int id) {
         String name = nameOf(id);
         return name == null ? "未知角色(" + id + ")" : name;
