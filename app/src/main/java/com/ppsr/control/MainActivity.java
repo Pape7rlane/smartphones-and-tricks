@@ -34,6 +34,8 @@ public class MainActivity extends Activity {
     private TextView serverState;
     private TextView startButton;
     private TextView lineupValue;
+    private TextView languageButton;
+    private ServerUiState serverUiState = ServerUiState.STOPPED;
     private boolean receiverRegistered;
     private boolean storageInitialized;
     private boolean notificationPermissionRequested;
@@ -44,18 +46,22 @@ public class MainActivity extends Activity {
             showState(running);
             String error = intent.getStringExtra(PythonServerService.EXTRA_ERROR);
             if (error != null) new AlertDialog.Builder(MainActivity.this)
-                    .setTitle("启动失败").setMessage(error).setPositiveButton("关闭", null).show();
+                    .setTitle(ui(R.string.start_failed)).setMessage(error)
+                    .setPositiveButton(ui(R.string.close), null).show();
         }
     };
+
+    private enum ServerUiState { STOPPED, STARTING, VALIDATING, RUNNING }
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         getWindow().setStatusBarColor(Color.TRANSPARENT);
-        getWindow().setNavigationBarColor(Color.rgb(16, 17, 20));
+        getWindow().setNavigationBarColor(getColor(R.color.background));
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         setContentView(R.layout.activity_main);
         bindViews();
+        applyLanguage();
         ensureStorageAccess();
     }
 
@@ -63,6 +69,11 @@ public class MainActivity extends Activity {
         serverState = findViewById(R.id.serverState);
         startButton = findViewById(R.id.startButton);
         lineupValue = findViewById(R.id.lineupValue);
+        languageButton = findViewById(R.id.languageButton);
+        languageButton.setOnClickListener(v -> {
+            UiLanguage.toggle(this);
+            applyLanguage();
+        });
         startButton.setOnClickListener(v -> startServer());
         findViewById(R.id.stopButton).setOnClickListener(v -> stopServer());
         findViewById(R.id.tbButton).setOnClickListener(v -> chooseTrailblazer());
@@ -106,7 +117,7 @@ public class MainActivity extends Activity {
         if (!ensureStorageAccess()) return;
         Intent intent = new Intent(this, PythonServerService.class).setAction(PythonServerService.ACTION_START);
         if (Build.VERSION.SDK_INT >= 26) startForegroundService(intent); else startService(intent);
-        serverState.setText("服务器正在启动");
+        setServerUiState(ServerUiState.STARTING);
     }
 
     protected boolean ensureStorageAccess() {
@@ -115,7 +126,7 @@ public class MainActivity extends Activity {
             return storageInitialized;
         }
         StorageAccess.request(this);
-        toast("请允许访问所有文件，用于创建 Download/ppSR");
+        toast(ui(R.string.storage_permission));
         return false;
     }
 
@@ -140,19 +151,65 @@ public class MainActivity extends Activity {
     }
 
     private void showState(boolean running) {
-        serverState.setText(running ? "服务器运行中" : "服务器已停止");
-        startButton.setText(running ? "服务器运行中 · 127.0.0.1:21000" : "启动服务器");
-        startButton.setBackgroundResource(running
+        setServerUiState(running ? ServerUiState.RUNNING : ServerUiState.STOPPED);
+    }
+
+    protected void showValidatingState() { setServerUiState(ServerUiState.VALIDATING); }
+
+    private void setServerUiState(ServerUiState state) {
+        serverUiState = state;
+        renderServerState();
+    }
+
+    private void renderServerState() {
+        int stateText;
+        if (serverUiState == ServerUiState.RUNNING) stateText = R.string.server_running;
+        else if (serverUiState == ServerUiState.STARTING) stateText = R.string.server_starting;
+        else if (serverUiState == ServerUiState.VALIDATING) stateText = R.string.server_validating;
+        else stateText = R.string.server_stopped;
+        serverState.setText(ui(stateText));
+        startButton.setText(ui(serverUiState == ServerUiState.RUNNING
+                ? R.string.running_at : R.string.start_server));
+        startButton.setBackgroundResource(serverUiState == ServerUiState.RUNNING
                 ? R.drawable.bg_primary_button_running : R.drawable.bg_primary_button);
     }
 
+    private void applyLanguage() {
+        languageButton.setText(UiLanguage.isEnglish(this) ? "EN" : "CN");
+        setText(R.id.serverSectionTitle, R.string.section_server);
+        setText(R.id.quickSectionTitle, R.string.section_quick_actions);
+        setText(R.id.lineupSectionTitle, R.string.section_lineup);
+        setText(R.id.toolsSectionTitle, R.string.section_tools);
+        setText(R.id.stopButton, R.string.stop_server);
+        setText(R.id.tbButton, R.string.change_trailblazer_path);
+        setText(R.id.marchButton, R.string.change_march_path);
+        setText(R.id.selectButton, R.string.select_character_by_path);
+        setText(R.id.addPathButton, R.string.add_entire_path);
+        setText(R.id.manualButton, R.string.enter_character_ids);
+        setText(R.id.removeButton, R.string.remove_character);
+        setText(R.id.clearButton, R.string.clear_lineup);
+        setText(R.id.iconButton, R.string.change_apk_icon);
+        setText(R.id.miscButton, R.string.open_misc_files);
+        setText(R.id.srtoolsButton, R.string.open_srtools);
+        renderServerState();
+        refreshLineup();
+    }
+
+    private void setText(int viewId, int textId) {
+        ((TextView) findViewById(viewId)).setText(ui(textId));
+    }
+
+    protected String ui(int resource, Object... arguments) {
+        return UiLanguage.text(this, resource, arguments);
+    }
+
     private void chooseTrailblazer() {
-        chooseConfig("开拓者命途", new String[]{"毁灭", "存护", "同谐", "记忆", "欢愉"},
+        chooseConfig(ui(R.string.trailblazer_path), UiLanguage.array(this, R.array.trailblazer_path_labels),
                 new String[]{"Destruction", "Preservation", "Harmony", "Remembrance", "Elation"}, "tb_path");
     }
 
     private void chooseMarch() {
-        chooseConfig("三月七命途", new String[]{"存护", "巡猎"},
+        chooseConfig(ui(R.string.march_path), UiLanguage.array(this, R.array.march_path_labels),
                 new String[]{"Preservation", "Hunt"}, "march_path");
     }
 
@@ -160,18 +217,20 @@ public class MainActivity extends Activity {
         new AlertDialog.Builder(this).setTitle(title).setItems(labels, (dialog, which) -> {
             try {
                 ConfigStore.setPath(this, key, values[which]);
-                toast("已切换到：" + labels[which] + "，重启服务后生效");
+                toast(ui(R.string.switched_path, labels[which]));
             } catch (Exception error) { showError(error); }
-        }).setNegativeButton("取消", null).show();
+        }).setNegativeButton(ui(R.string.cancel), null).show();
     }
 
     private void choosePath(boolean wholePath) {
-        new AlertDialog.Builder(this).setTitle(wholePath ? "整个命途加入" : "选择命途")
-                .setItems(CharacterData.PATH_LABELS, (dialog, which) -> {
+        String[] pathLabels = UiLanguage.array(this, R.array.path_labels);
+        new AlertDialog.Builder(this).setTitle(ui(wholePath
+                        ? R.string.add_entire_path : R.string.select_path))
+                .setItems(pathLabels, (dialog, which) -> {
                     String path = CharacterData.PATH_VALUES[which];
-                    if (wholePath) confirmAddPath(CharacterData.PATH_LABELS[which], path);
-                    else chooseCharacter(CharacterData.PATH_LABELS[which], path);
-                }).setNegativeButton("取消", null).show();
+                    if (wholePath) confirmAddPath(pathLabels[which], path);
+                    else chooseCharacter(pathLabels[which], path);
+                }).setNegativeButton(ui(R.string.cancel), null).show();
     }
 
     private void chooseCharacter(String label, String path) {
@@ -181,67 +240,71 @@ public class MainActivity extends Activity {
         new AlertDialog.Builder(this).setTitle(label).setItems(items, (dialog, which) -> {
             try { ConfigStore.addIds(this, Collections.singletonList(ids.get(which))); refreshLineup(); }
             catch (Exception error) { showError(error); }
-        }).setNegativeButton("返回", null).show();
+        }).setNegativeButton(ui(R.string.back), null).show();
     }
 
     private void confirmAddPath(String label, String path) {
         List<Integer> ids = CharacterData.PATHS.get(path);
-        new AlertDialog.Builder(this).setTitle("加入整个" + label + "命途？")
-                .setMessage("将加入 " + ids.size() + " 个角色，已存在的角色会跳过。")
-                .setPositiveButton("加入", (d, w) -> {
+        new AlertDialog.Builder(this).setTitle(ui(R.string.add_whole_path_title, label))
+                .setMessage(ui(R.string.add_whole_path_message, ids.size()))
+                .setPositiveButton(ui(R.string.add), (d, w) -> {
                     try { ConfigStore.addIds(this, ids); refreshLineup(); }
                     catch (Exception error) { showError(error); }
-                }).setNegativeButton("取消", null).show();
+                }).setNegativeButton(ui(R.string.cancel), null).show();
     }
 
     private void inputCharacterIds() {
-        EditText input = input("例如：1501 1502 1503", InputType.TYPE_CLASS_TEXT);
-        new AlertDialog.Builder(this).setTitle("添加角色 ID").setView(input)
-                .setPositiveButton("添加", (d, w) -> {
+        EditText input = input(ui(R.string.character_ids_hint), InputType.TYPE_CLASS_TEXT);
+        new AlertDialog.Builder(this).setTitle(ui(R.string.add_character_ids)).setView(input)
+                .setPositiveButton(ui(R.string.add), (d, w) -> {
                     try {
                         String value = input.getText().toString().trim();
-                        if (!value.matches("[0-9 ]+")) throw new IllegalArgumentException("只能输入数字和空格");
+                        if (!value.matches("[0-9 ]+")) {
+                            throw new IllegalArgumentException(ui(R.string.invalid_ids));
+                        }
                         List<Integer> ids = new ArrayList<>();
                         for (String token : value.split(" +")) ids.add(Integer.parseInt(token));
                         ConfigStore.addIds(this, ids); refreshLineup();
                     } catch (Exception error) { showError(error); }
-                }).setNegativeButton("取消", null).show();
+                }).setNegativeButton(ui(R.string.cancel), null).show();
     }
 
     private void inputRemoveIndex() {
-        EditText input = input("当前配队中的序号", InputType.TYPE_CLASS_NUMBER);
-        new AlertDialog.Builder(this).setTitle("删除角色").setView(input)
-                .setPositiveButton("删除", (d, w) -> {
+        EditText input = input(ui(R.string.remove_index_hint), InputType.TYPE_CLASS_NUMBER);
+        new AlertDialog.Builder(this).setTitle(ui(R.string.remove_character_title)).setView(input)
+                .setPositiveButton(ui(R.string.remove), (d, w) -> {
                     try { ConfigStore.removeAt(this, Integer.parseInt(input.getText().toString())); refreshLineup(); }
                     catch (Exception error) { showError(error); }
-                }).setNegativeButton("取消", null).show();
+                }).setNegativeButton(ui(R.string.cancel), null).show();
     }
 
     private void confirmClear() {
-        new AlertDialog.Builder(this).setTitle("清空整个配队？")
-                .setPositiveButton("清空", (d, w) -> {
+        new AlertDialog.Builder(this).setTitle(ui(R.string.clear_lineup_title))
+                .setPositiveButton(ui(R.string.clear), (d, w) -> {
                     try { ConfigStore.clear(this); refreshLineup(); }
                     catch (Exception error) { showError(error); }
-                }).setNegativeButton("取消", null).show();
+                }).setNegativeButton(ui(R.string.cancel), null).show();
     }
 
     private void refreshLineup() {
         if (lineupValue == null) return;
         try {
             List<Integer> ids = ConfigStore.lineup(this);
-            if (ids.isEmpty()) { lineupValue.setText("当前配队：暂无角色"); return; }
-            StringBuilder value = new StringBuilder("当前配队\n");
+            if (ids.isEmpty()) { lineupValue.setText(ui(R.string.lineup_empty)); return; }
+            StringBuilder value = new StringBuilder(ui(R.string.lineup_heading)).append('\n');
             for (int i = 0; i < ids.size(); i++) { int id = ids.get(i); String name = CharacterData.nameOf(id); value.append(i + 1).append(". ").append(id); if (name != null) value.append(" - ").append(name); value.append('\n'); }
             lineupValue.setText(value.toString().trim());
-        } catch (Exception error) { lineupValue.setText("配队读取失败：" + error.getMessage()); }
+        } catch (Exception error) {
+            lineupValue.setText(ui(R.string.lineup_read_failed, error.getMessage()));
+        }
     }
 
     private void chooseIcon() {
-        new AlertDialog.Builder(this).setTitle("APK 图标（res PNG）")
-                .setItems(IconSwitcher.LABELS, (d, which) -> {
+        new AlertDialog.Builder(this).setTitle(ui(R.string.icon_dialog_title))
+                .setItems(UiLanguage.array(this, R.array.icon_labels), (d, which) -> {
                     IconSwitcher.apply(this, which);
-                    toast("PNG 图标已切换，桌面可能需要几秒刷新");
-                }).setNegativeButton("取消", null).show();
+                    toast(ui(R.string.icon_changed));
+                }).setNegativeButton(ui(R.string.cancel), null).show();
     }
 
     private void openMisc() {
@@ -252,7 +315,7 @@ public class MainActivity extends Activity {
             Collections.sort(files, (left, right) ->
                     left.getAbsolutePath().compareToIgnoreCase(right.getAbsolutePath()));
             if (files.isEmpty()) {
-                toast("misc 目录中没有 JSON 文件");
+                toast(ui(R.string.no_json_files));
                 return;
             }
             String[] labels = new String[files.size()];
@@ -260,9 +323,9 @@ public class MainActivity extends Activity {
                 labels[i] = misc.toPath().relativize(files.get(i).toPath()).toString()
                         .replace(File.separatorChar, '/');
             }
-            new AlertDialog.Builder(this).setTitle("misc 文件")
+            new AlertDialog.Builder(this).setTitle(ui(R.string.misc_files))
                     .setItems(labels, (dialog, which) -> openJsonFile(labels[which], files.get(which)))
-                    .setNegativeButton("关闭", null).show();
+                    .setNegativeButton(ui(R.string.close), null).show();
         } catch (Exception error) {
             showError(error);
         }
@@ -285,11 +348,13 @@ public class MainActivity extends Activity {
         String size = String.format(java.util.Locale.ROOT, "%.1f MB",
                 file.length() / (1024.0 * 1024.0));
         new AlertDialog.Builder(this)
-                .setTitle("大文件：" + relativePath)
-                .setMessage("文件大小为 " + size + "，使用内置编辑器可能卡顿。")
-                .setPositiveButton("选择外部应用", (dialog, which) -> openWithExternalApp(file))
-                .setNegativeButton("仍用内置编辑", (dialog, which) -> editMiscFile(relativePath, file))
-                .setNeutralButton("取消", null)
+                .setTitle(ui(R.string.large_file_title, relativePath))
+                .setMessage(ui(R.string.large_file_message, size))
+                .setPositiveButton(ui(R.string.choose_external_app),
+                        (dialog, which) -> openWithExternalApp(file))
+                .setNegativeButton(ui(R.string.edit_in_app),
+                        (dialog, which) -> editMiscFile(relativePath, file))
+                .setNeutralButton(ui(R.string.cancel), null)
                 .show();
     }
 
@@ -301,7 +366,7 @@ public class MainActivity extends Activity {
                     .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
                             | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             edit.setClipData(android.content.ClipData.newRawUri(file.getName(), uri));
-            startActivity(Intent.createChooser(edit, "选择文件管理器或编辑器"));
+            startActivity(Intent.createChooser(edit, ui(R.string.choose_editor)));
         } catch (Exception error) {
             showError(error);
         }
@@ -324,8 +389,8 @@ public class MainActivity extends Activity {
 
             AlertDialog dialog = new AlertDialog.Builder(this).setTitle(relativePath)
                     .setView(editor)
-                    .setPositiveButton("保存", null)
-                    .setNegativeButton("取消", null)
+                    .setPositiveButton(ui(R.string.save), null)
+                    .setNegativeButton(ui(R.string.cancel), null)
                     .create();
             dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                     .setOnClickListener(view -> {
@@ -334,10 +399,10 @@ public class MainActivity extends Activity {
                             new JSONTokener(value).nextValue();
                             Files.write(file.toPath(), value.getBytes(StandardCharsets.UTF_8));
                             refreshLineup();
-                            toast("已保存，重启服务后生效");
+                            toast(ui(R.string.saved_restart));
                             dialog.dismiss();
                         } catch (Exception error) {
-                            editor.setError("JSON 格式错误：" + error.getMessage());
+                            editor.setError(ui(R.string.json_error, error.getMessage()));
                         }
                     }));
             dialog.show();
@@ -359,8 +424,8 @@ public class MainActivity extends Activity {
     }
     private void toast(String value) { Toast.makeText(this, value, Toast.LENGTH_SHORT).show(); }
     private void showError(Throwable error) {
-        new AlertDialog.Builder(this).setTitle("操作失败")
+        new AlertDialog.Builder(this).setTitle(ui(R.string.operation_failed))
                 .setMessage(error.getMessage() == null ? error.toString() : error.getMessage())
-                .setPositiveButton("关闭", null).show();
+                .setPositiveButton(ui(R.string.close), null).show();
     }
 }

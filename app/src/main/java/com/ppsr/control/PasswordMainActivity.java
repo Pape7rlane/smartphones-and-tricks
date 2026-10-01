@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class PasswordMainActivity extends MainActivity {
@@ -20,31 +19,33 @@ public class PasswordMainActivity extends MainActivity {
 
     private void showPasswordDialog() {
         EditText input = new EditText(this);
-        input.setHint(PasswordStore.hasSaved(this) ? "留空使用已保存密码" : "请输入服务器密码");
+        input.setHint(ui(PasswordStore.hasSaved(this)
+                ? R.string.password_saved_hint : R.string.password_hint));
         input.setSingleLine(true);
         input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         int horizontal = Math.round(24 * getResources().getDisplayMetrics().density);
         input.setPadding(horizontal, 8, horizontal, 0);
 
         new AlertDialog.Builder(this)
-                .setTitle("服务器密码")
-                .setMessage("密码由 ppSR 服主提供；密码更新后在这里输入新的密码。")
+                .setTitle(ui(R.string.password_title))
+                .setMessage(ui(R.string.password_message))
                 .setView(input)
-                .setPositiveButton("保存并启动", (dialog, which) -> {
+                .setPositiveButton(ui(R.string.save_and_start), (dialog, which) -> {
                     String password = input.getText().toString().trim();
                     try {
                         if (!password.isEmpty()) PasswordStore.save(this, password);
                         else if (!PasswordStore.hasSaved(this)) {
-                            Toast.makeText(this, "请输入服务器密码", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, ui(R.string.password_required), Toast.LENGTH_SHORT).show();
                             return;
                         }
                         startServerWithSavedPassword();
                     } catch (Exception error) {
-                        new AlertDialog.Builder(this).setTitle("密码保存失败")
-                                .setMessage(error.getMessage()).setPositiveButton("关闭", null).show();
+                        new AlertDialog.Builder(this).setTitle(ui(R.string.password_save_failed))
+                                .setMessage(error.getMessage())
+                                .setPositiveButton(ui(R.string.close), null).show();
                     }
                 })
-                .setNegativeButton("取消", null)
+                .setNegativeButton(ui(R.string.cancel), null)
                 .show();
     }
 
@@ -54,7 +55,6 @@ public class PasswordMainActivity extends MainActivity {
                 .setAction(PythonServerService.ACTION_START);
         if (Build.VERSION.SDK_INT >= 26) startForegroundService(intent);
         else startService(intent);
-        TextView state = findViewById(R.id.serverState);
-        state.setText("正在校验密码并启动");
+        showValidatingState();
     }
 }

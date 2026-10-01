@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="section_server">服务器</string>
+    <string name="section_quick_actions">快捷功能</string>
+    <string name="section_lineup">当前配队</string>
+    <string name="section_tools">工具</string>
+    <string name="server_stopped">服务器已停止</string>
+    <string name="server_starting">服务器正在启动</string>
+    <string name="server_validating">正在校验密码并启动</string>
+    <string name="server_running">服务器运行中</string>
+    <string name="start_server">启动服务器</string>
+    <string name="running_at">服务器运行中 · 127.0.0.1:21000</string>
+    <string name="stop_server">停止服务器</string>
+    <string name="change_trailblazer_path">切换开拓者命途</string>
+    <string name="change_march_path">切换三月七命途</string>
+    <string name="select_character_by_path">按命途选择角色</string>
+    <string name="add_entire_path">整个命途加入</string>
+    <string name="enter_character_ids">手动输入角色 ID</string>
+    <string name="lineup_loading">当前配队：正在读取...</string>
+    <string name="lineup_empty">当前配队：暂无角色</string>
+    <string name="lineup_heading">当前配队</string>
+    <string name="lineup_read_failed">配队读取失败：%1$s</string>
+    <string name="remove_character">按序号删除角色</string>
+    <string name="clear_lineup">清空配队</string>
+    <string name="change_apk_icon">切换 APK 图标（读取 res PNG）</string>
+    <string name="open_misc_files">打开 misc 文件</string>
+    <string name="open_srtools">打开 SRTools 完整配置</string>
+    <string name="start_failed">启动失败</string>
+    <string name="close">关闭</string>
+    <string name="cancel">取消</string>
+    <string name="back">返回</string>
+    <string name="storage_permission">请允许访问所有文件，用于创建 Download/ppSR</string>
+    <string name="trailblazer_path">开拓者命途</string>
+    <string name="march_path">三月七命途</string>
+    <string name="switched_path">已切换到：%1$s，重启服务后生效</string>
+    <string name="select_path">选择命途</string>
+    <string name="add_whole_path_title">加入整个%1$s命途？</string>
+    <string name="add_whole_path_message">将加入 %1$d 个角色，已存在的角色会跳过。</string>
+    <string name="add">加入</string>
+    <string name="character_ids_hint">例如：1501 1502 1503</string>
+    <string name="add_character_ids">添加角色 ID</string>
+    <string name="invalid_ids">只能输入数字和空格</string>
+    <string name="remove_index_hint">当前配队中的序号</string>
+    <string name="remove_character_title">删除角色</string>
+    <string name="remove">删除</string>
+    <string name="clear_lineup_title">清空整个配队？</string>
+    <string name="clear">清空</string>
+    <string name="icon_dialog_title">APK 图标（res PNG）</string>
+    <string name="icon_default">默认 PNG</string>
+    <string name="icon_round">圆形 PNG</string>
+    <string name="icon_alternate">备用 PNG</string>
+    <string name="icon_changed">PNG 图标已切换，桌面可能需要几秒刷新</string>
+    <string name="no_json_files">misc 目录中没有 JSON 文件</string>
+    <string name="misc_files">misc 文件</string>
+    <string name="large_file_title">大文件：%1$s</string>
+    <string name="large_file_message">文件大小为 %1$s，使用内置编辑器可能卡顿。</string>
+    <string name="choose_external_app">选择外部应用</string>
+    <string name="edit_in_app">仍用内置编辑</string>
+    <string name="choose_editor">选择文件管理器或编辑器</string>
+    <string name="save">保存</string>
+    <string name="saved_restart">已保存，重启服务后生效</string>
+    <string name="json_error">JSON 格式错误：%1$s</string>
+    <string name="operation_failed">操作失败</string>
+    <string name="password_saved_hint">留空使用已保存密码</string>
+    <string name="password_hint">请输入服务器密码</string>
+    <string name="password_title">服务器密码</string>
+    <string name="password_message">密码由 ppSR 服主提供；密码更新后在这里输入新的密码。</string>
+    <string name="save_and_start">保存并启动</string>
+    <string name="password_required">请输入服务器密码</string>
+    <string name="password_save_failed">密码保存失败</string>
+
+    <string-array name="path_labels">
+        <item>毁灭</item><item>巡猎</item><item>智识</item><item>同谐</item><item>虚无</item><item>存护</item><item>丰饶</item><item>记忆</item><item>欢愉</item>
+    </string-array>
+    <string-array name="trailblazer_path_labels">
+        <item>毁灭</item><item>存护</item><item>同谐</item><item>记忆</item><item>欢愉</item>
+    </string-array>
+    <string-array name="march_path_labels"><item>存护</item><item>巡猎</item></string-array>
+    <string-array name="icon_labels"><item>默认 PNG</item><item>圆形 PNG</item><item>备用 PNG</item></string-array>
+</resources>

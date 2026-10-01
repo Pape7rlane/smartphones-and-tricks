@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="section_server">Server</string>
+    <string name="section_quick_actions">Quick actions</string>
+    <string name="section_lineup">Current lineup</string>
+    <string name="section_tools">Tools</string>
+    <string name="server_stopped">Server stopped</string>
+    <string name="server_starting">Server starting</string>
+    <string name="server_validating">Validating password and starting</string>
+    <string name="server_running">Server running</string>
+    <string name="start_server">Start server</string>
+    <string name="running_at">Running · 127.0.0.1:21000</string>
+    <string name="stop_server">Stop server</string>
+    <string name="change_trailblazer_path">Change Trailblazer path</string>
+    <string name="change_march_path">Change March 7th path</string>
+    <string name="select_character_by_path">Select character by path</string>
+    <string name="add_entire_path">Add an entire path</string>
+    <string name="enter_character_ids">Enter character IDs</string>
+    <string name="lineup_loading">Current lineup: loading...</string>
+    <string name="lineup_empty">Current lineup: no characters</string>
+    <string name="lineup_heading">Current lineup</string>
+    <string name="lineup_read_failed">Could not read lineup: %1$s</string>
+    <string name="remove_character">Remove character by number</string>
+    <string name="clear_lineup">Clear lineup</string>
+    <string name="change_apk_icon">Change APK icon (res PNG)</string>
+    <string name="open_misc_files">Open misc files</string>
+    <string name="open_srtools">Open full SRTools config</string>
+    <string name="start_failed">Start failed</string>
+    <string name="close">Close</string>
+    <string name="cancel">Cancel</string>
+    <string name="back">Back</string>
+    <string name="storage_permission">Allow all-files access to create Download/ppSR</string>
+    <string name="trailblazer_path">Trailblazer path</string>
+    <string name="march_path">March 7th path</string>
+    <string name="switched_path">Changed to %1$s. Restart the server to apply.</string>
+    <string name="select_path">Select path</string>
+    <string name="add_whole_path_title">Add the entire %1$s path?</string>
+    <string name="add_whole_path_message">This will add %1$d characters. Existing characters will be skipped.</string>
+    <string name="add">Add</string>
+    <string name="character_ids_hint">Example: 1501 1502 1503</string>
+    <string name="add_character_ids">Add character IDs</string>
+    <string name="invalid_ids">Enter numbers and spaces only</string>
+    <string name="remove_index_hint">Number in the current lineup</string>
+    <string name="remove_character_title">Remove character</string>
+    <string name="remove">Remove</string>
+    <string name="clear_lineup_title">Clear the entire lineup?</string>
+    <string name="clear">Clear</string>
+    <string name="icon_dialog_title">APK icon (res PNG)</string>
+    <string name="icon_default">Default PNG</string>
+    <string name="icon_round">Round PNG</string>
+    <string name="icon_alternate">Alternate PNG</string>
+    <string name="icon_changed">PNG icon changed. The launcher may take a few seconds to refresh.</string>
+    <string name="no_json_files">No JSON files found in the misc directory</string>
+    <string name="misc_files">misc files</string>
+    <string name="large_file_title">Large file: %1$s</string>
+    <string name="large_file_message">This file is %1$s. The built-in editor may be slow.</string>
+    <string name="choose_external_app">Choose external app</string>
+    <string name="edit_in_app">Edit in app</string>
+    <string name="choose_editor">Choose a file manager or editor</string>
+    <string name="save">Save</string>
+    <string name="saved_restart">Saved. Restart the server to apply.</string>
+    <string name="json_error">Invalid JSON: %1$s</string>
+    <string name="operation_failed">Operation failed</string>
+    <string name="password_saved_hint">Leave blank to use the saved password</string>
+    <string name="password_hint">Enter the server password</string>
+    <string name="password_title">Server password</string>
+    <string name="password_message">Enter the password provided by the ppSR host. Enter a new one here after it changes.</string>
+    <string name="save_and_start">Save and start</string>
+    <string name="password_required">Enter the server password</string>
+    <string name="password_save_failed">Could not save password</string>
+
+    <string-array name="path_labels">
+        <item>Destruction</item><item>The Hunt</item><item>Erudition</item><item>Harmony</item><item>Nihility</item><item>Preservation</item><item>Abundance</item><item>Remembrance</item><item>Elation</item>
+    </string-array>
+    <string-array name="trailblazer_path_labels">
+        <item>Destruction</item><item>Preservation</item><item>Harmony</item><item>Remembrance</item><item>Elation</item>
+    </string-array>
+    <string-array name="march_path_labels"><item>Preservation</item><item>The Hunt</item></string-array>
+    <string-array name="icon_labels"><item>Default PNG</item><item>Round PNG</item><item>Alternate PNG</item></string-array>
+</resources>
