@@ -6,6 +6,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class PasswordMainActivity extends MainActivity {
