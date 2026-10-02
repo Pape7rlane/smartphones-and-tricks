@@ -24,7 +24,8 @@
     <string name="clear_lineup">Clear lineup</string>
     <string name="change_apk_icon">Change APK icon (res PNG)</string>
     <string name="open_misc_files">Open misc files</string>
-    <string name="open_srtools">Open full SRTools config</string>
+    <string name="open_firefly_srtools">Open Firefly_Srtools website</string>
+    <string name="open_neonteam_srtools">Open srtools.neonteam website</string>
     <string name="start_failed">Start failed</string>
     <string name="close">Close</string>
     <string name="cancel">Cancel</string>

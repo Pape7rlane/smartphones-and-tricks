@@ -30,7 +30,8 @@ import org.json.JSONTokener;
 
 public class MainActivity extends Activity {
     private static final long LARGE_JSON_SIZE = 512 * 1024;
-    private static final String SRTOOLS_URL = "https://srtools.neonteam.dev/1001/detail";
+    private static final String FIREFLY_SRTOOLS_URL = "https://srtools.punklorde.org/";
+    private static final String NEONTEAM_SRTOOLS_URL = "https://srtools.neonteam.dev/1001/detail";
     private TextView serverState;
     private TextView startButton;
     private TextView lineupValue;
@@ -85,7 +86,10 @@ public class MainActivity extends Activity {
         findViewById(R.id.clearButton).setOnClickListener(v -> confirmClear());
         findViewById(R.id.iconButton).setOnClickListener(v -> chooseIcon());
         findViewById(R.id.miscButton).setOnClickListener(v -> openMisc());
-        findViewById(R.id.srtoolsButton).setOnClickListener(v -> openSrTools());
+        findViewById(R.id.fireflySrtoolsButton).setOnClickListener(
+                v -> openWebsite(FIREFLY_SRTOOLS_URL));
+        findViewById(R.id.neonteamSrtoolsButton).setOnClickListener(
+                v -> openWebsite(NEONTEAM_SRTOOLS_URL));
     }
 
     @Override protected void onStart() {
@@ -141,9 +145,8 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void openSrTools() {
-        if (!ensureStorageAccess()) return;
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SRTOOLS_URL)));
+    private void openWebsite(String url) {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
     }
 
     private void stopServer() {
@@ -190,7 +193,8 @@ public class MainActivity extends Activity {
         setText(R.id.clearButton, R.string.clear_lineup);
         setText(R.id.iconButton, R.string.change_apk_icon);
         setText(R.id.miscButton, R.string.open_misc_files);
-        setText(R.id.srtoolsButton, R.string.open_srtools);
+        setText(R.id.fireflySrtoolsButton, R.string.open_firefly_srtools);
+        setText(R.id.neonteamSrtoolsButton, R.string.open_neonteam_srtools);
         renderServerState();
         refreshLineup();
     }
