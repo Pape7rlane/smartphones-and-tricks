@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="background">#090C14</color>
-    <color name="background_scrim">#99090C14</color>
-    <color name="surface">#121625</color>
-    <color name="surface_raised">#171C2D</color>
-    <color name="surface_input">#0D111C</color>
-    <color name="text_primary">#F7F8FC</color>
-    <color name="text_secondary">#C7CBDA</color>
-    <color name="text_muted">#8E95AA</color>
-    <color name="accent">#686CF2</color>
-    <color name="accent_pressed">#555ADE</color>
-    <color name="accent_soft">#262B55</color>
-    <color name="success">#23866D</color>
-    <color name="danger">#D36B7A</color>
-    <color name="line">#303750</color>
-    <color name="line_accent">#555C91</color>
+    <color name="background">#351A22</color>
+    <color name="background_scrim">#997B3947</color>
+    <color name="surface">#E65B303B</color>
+    <color name="surface_raised">#74404D</color>
+    <color name="surface_input">#43232C</color>
+    <color name="text_primary">#DDF3FF</color>
+    <color name="text_secondary">#BFDFF3</color>
+    <color name="text_muted">#98BED8</color>
+    <color name="accent">#A94F64</color>
+    <color name="accent_pressed">#8D3D50</color>
+    <color name="accent_soft">#5B2E3B</color>
+    <color name="success">#3C8A78</color>
+    <color name="danger">#FFB0B7</color>
+    <color name="line">#8A5663</color>
+    <color name="line_accent">#D68A99</color>
 </resources>
