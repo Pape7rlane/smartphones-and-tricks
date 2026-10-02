@@ -2,6 +2,7 @@ package com.ppsr.control;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -14,9 +15,9 @@ final class StorageAccess {
 
     private StorageAccess() {}
 
-    static boolean isGranted(Activity activity) {
+    static boolean isGranted(Context context) {
         if (Build.VERSION.SDK_INT >= 30) return Environment.isExternalStorageManager();
-        return Build.VERSION.SDK_INT < 23 || activity.checkSelfPermission(
+        return Build.VERSION.SDK_INT < 23 || context.checkSelfPermission(
                 Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
     }
 

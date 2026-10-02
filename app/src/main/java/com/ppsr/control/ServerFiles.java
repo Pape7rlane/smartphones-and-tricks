@@ -10,9 +10,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 final class ServerFiles {
-    private static final String PAYLOAD_VERSION = "4.6.51-1";
+    private static final String PAYLOAD_VERSION = "4.6.51-2";
     private ServerFiles() {}
 
     static File directory(Context context) {
@@ -21,13 +22,16 @@ final class ServerFiles {
     }
 
     static synchronized File install(Context context) throws IOException {
+        if (!StorageAccess.isGranted(context)) {
+            throw new IOException("请重新授予所有文件访问权限，才能写入 Download/ppSR");
+        }
         File destination = directory(context);
         File marker = new File(destination, ".payload-version");
         String installed = marker.isFile()
                 ? new String(Files.readAllBytes(marker.toPath()), StandardCharsets.UTF_8) : "";
         if (!PAYLOAD_VERSION.equals(installed)) {
             copyTree(context.getAssets(), "server", destination, destination);
-            Files.write(marker.toPath(), PAYLOAD_VERSION.getBytes(StandardCharsets.UTF_8));
+            writeFile(marker, PAYLOAD_VERSION.getBytes(StandardCharsets.UTF_8));
         }
         return destination;
     }
@@ -47,11 +51,40 @@ final class ServerFiles {
         if (parent != null && !parent.isDirectory() && !parent.mkdirs()) {
             throw new IOException("Cannot create " + parent);
         }
-        try (InputStream input = assets.open(assetPath);
-             OutputStream output = new FileOutputStream(target)) {
+        try (InputStream input = assets.open(assetPath)) {
+            writeFile(target, input);
+        } catch (IOException error) {
+            throw new IOException("无法写入 " + target.getAbsolutePath()
+                    + "，请确认已授予所有文件访问权限；如仍失败，请备份 misc 后删除旧 ppSR 目录",
+                    error);
+        }
+    }
+
+    private static void writeFile(File target, byte[] value) throws IOException {
+        writeFile(target, new java.io.ByteArrayInputStream(value));
+    }
+
+    private static void writeFile(File target, InputStream input) throws IOException {
+        File parent = target.getParentFile();
+        if (parent == null) throw new IOException("Invalid target " + target);
+        File temporary = File.createTempFile(".ppsr-", ".tmp", parent);
+        try (OutputStream output = new FileOutputStream(temporary)) {
             byte[] buffer = new byte[16384];
             int count;
             while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
+        }
+        try {
+            Files.move(temporary.toPath(), target.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException atomicError) {
+            try {
+                Files.move(temporary.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException replaceError) {
+                replaceError.addSuppressed(atomicError);
+                throw replaceError;
+            }
+        } finally {
+            if (temporary.exists()) temporary.delete();
         }
     }
 

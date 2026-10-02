@@ -39,6 +39,12 @@ public class PythonServerService extends Service {
             return START_NOT_STICKY;
         }
         startForeground(NOTIFICATION_ID, notification("正在校验密码并启动..."));
+        if (!StorageAccess.isGranted(this)) {
+            broadcast(false, "存储权限已失效，请打开 ppSR 并重新授予所有文件访问权限");
+            stopForeground(STOP_FOREGROUND_REMOVE);
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         startServer();
         return START_STICKY;
     }
