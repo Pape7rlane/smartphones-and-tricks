@@ -6,8 +6,9 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.IBinder;
-import com.chaquo.python.PyException;
+import android.os.Process;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
 import java.io.File;
@@ -43,10 +44,11 @@ public class PythonServerService extends Service {
             broadcast(false, "存储权限已失效，请打开 ppSR 并重新授予所有文件访问权限");
             stopForeground(STOP_FOREGROUND_REMOVE);
             stopSelf();
+            terminateServerProcess(250);
             return START_NOT_STICKY;
         }
         startServer();
-        return START_STICKY;
+        return START_NOT_STICKY;
     }
 
     private void startServer() {
@@ -65,22 +67,30 @@ public class PythonServerService extends Service {
                 broadcast(false, error.toString());
                 stopForeground(STOP_FOREGROUND_REMOVE);
                 stopSelf();
+                terminateServerProcess(250);
             }
         });
     }
 
     private void stopServer() {
+        broadcast(false, null);
+        stopForeground(STOP_FOREGROUND_REMOVE);
+        terminateServerProcess(2000);
         executor.execute(() -> {
             try {
                 if (Python.isStarted()) Python.getInstance().getModule("app_bridge").callAttr("stop");
-            } catch (PyException ignored) {
+            } catch (Throwable ignored) {
             } finally {
                 running = false;
-                broadcast(false, null);
-                stopForeground(STOP_FOREGROUND_REMOVE);
                 stopSelf();
+                terminateServerProcess(100);
             }
         });
+    }
+
+    private void terminateServerProcess(long delayMillis) {
+        new Handler(getMainLooper()).postDelayed(
+                () -> Process.killProcess(Process.myPid()), delayMillis);
     }
 
     private Notification notification(String status) {
