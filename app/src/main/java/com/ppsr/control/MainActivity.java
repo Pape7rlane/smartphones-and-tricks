@@ -236,7 +236,12 @@ public class MainActivity extends Activity {
     private void chooseCharacter(String label, String path) {
         List<Integer> ids = CharacterData.PATHS.get(path);
         String[] items = new String[ids.size()];
-        for (int i = 0; i < ids.size(); i++) items[i] = String.valueOf(ids.get(i));
+        boolean english = UiLanguage.isEnglish(this);
+        for (int i = 0; i < ids.size(); i++) {
+            int id = ids.get(i);
+            String name = CharacterData.nameOf(id, english);
+            items[i] = name == null ? String.valueOf(id) : id + " - " + name;
+        }
         new AlertDialog.Builder(this).setTitle(label).setItems(items, (dialog, which) -> {
             try { ConfigStore.addIds(this, Collections.singletonList(ids.get(which))); refreshLineup(); }
             catch (Exception error) { showError(error); }

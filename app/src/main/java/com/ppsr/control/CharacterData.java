@@ -137,7 +137,7 @@ final class CharacterData {
         names.put(1502, "爻光");
         names.put(1503, "真珠");
         names.put(1505, "绯英");
-        names.put(1506, "银狼LV.<unbreak>999</unbreak>");
+        names.put(1506, "银狼LV.999");
         names.put(1511, "星神★阿哈");
         names.put(1513, "砂金•戏浪");
         names.put(8009, "开拓者•欢愉•穹");
@@ -249,7 +249,7 @@ final class CharacterData {
         englishNames.put(1502, "Yao Guang");
         englishNames.put(1503, "Pearl");
         englishNames.put(1505, "Evanescia");
-        englishNames.put(1506, "Silver Wolf LV.<unbreak>999</unbreak>");
+        englishNames.put(1506, "Silver Wolf LV.999");
         englishNames.put(1511, "Aeon ★ Aha");
         englishNames.put(1513, "Aventurine • Waveflair");
         englishNames.put(8009, "Trailblazer • Elation • Caelus");
