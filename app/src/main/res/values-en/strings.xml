@@ -24,6 +24,13 @@
     <string name="clear_lineup">Clear lineup</string>
     <string name="change_apk_icon">Change APK icon (res PNG)</string>
     <string name="open_misc_files">Open misc files</string>
+    <string name="open_live_log">Live log</string>
+    <string name="live_log_title">Live log · ppSR 4.6.51</string>
+    <string name="live_log_waiting">Waiting for server logs. Start the server first...</string>
+    <string name="live_log_empty">Log cleared. Waiting for new output...</string>
+    <string name="live_log_truncated">Showing the latest 128 KB of logs</string>
+    <string name="live_log_read_failed">Could not read log: %1$s</string>
+    <string name="clear_log">Clear</string>
     <string name="open_firefly_srtools">Open Firefly_Srtools website</string>
     <string name="open_neonteam_srtools">Open srtools.neonteam website</string>
     <string name="start_failed">Start failed</string>

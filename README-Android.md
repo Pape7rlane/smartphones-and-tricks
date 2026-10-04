@@ -34,6 +34,7 @@ Flask、Requests、Protobuf 和 dataclasses-json，并通过 Android 前台服�
 - 切换开拓者和三月七命途。
 - 按命途选角、整个命途加入、手输 ID、删除和清空配队。
 - 服务通过 Android 前台通知持续运行。
+- 在 App 内实时查看服务器输出，关闭日志窗口不会停止服务。
 - 更新 APK 时保留 `persistent.json` 和 `freesr-data.json`；版本对应的 `hotfix.json` 会更新。
 
 ## PNG 图标和背景

@@ -16,6 +16,7 @@ APK 图标、全屏背景、服务器状态和半透明功能按钮。
 - 在三套 `res` PNG 桌面图标之间动态切换。
 - 更新 APK 时保留 `persistent.json` 和 `freesr-data.json`；版本对应的 `hotfix.json` 会更新。
 - 在 App 内直接打开、编辑并保存 misc 目录中的 JSON 文件。
+- 在 App 内查看可关闭、可清空的实时服务器日志。
 
 ## 存储目录与 SRTools
 

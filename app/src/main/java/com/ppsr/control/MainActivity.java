@@ -13,13 +13,17 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
+import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -30,6 +34,8 @@ import org.json.JSONTokener;
 
 public class MainActivity extends Activity {
     private static final long LARGE_JSON_SIZE = 512 * 1024;
+    private static final int MAX_LIVE_LOG_BYTES = 128 * 1024;
+    private static final long LIVE_LOG_REFRESH_MS = 500;
     private static final String FIREFLY_SRTOOLS_URL = "https://srtools.punklorde.org/";
     private static final String NEONTEAM_SRTOOLS_URL = "https://srtools.neonteam.dev/1001/detail";
     private TextView serverState;
@@ -40,6 +46,19 @@ public class MainActivity extends Activity {
     private boolean receiverRegistered;
     private boolean storageInitialized;
     private boolean notificationPermissionRequested;
+    private final Handler liveLogHandler = new Handler(Looper.getMainLooper());
+    private AlertDialog liveLogDialog;
+    private TextView liveLogText;
+    private ScrollView liveLogScroll;
+    private long liveLogLength = -1;
+    private long liveLogModified = -1;
+    private final Runnable liveLogRefresh = new Runnable() {
+        @Override public void run() {
+            if (liveLogDialog == null || !liveLogDialog.isShowing()) return;
+            refreshLiveLog();
+            liveLogHandler.postDelayed(this, LIVE_LOG_REFRESH_MS);
+        }
+    };
 
     private final BroadcastReceiver stateReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) {
@@ -86,6 +105,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.clearButton).setOnClickListener(v -> confirmClear());
         findViewById(R.id.iconButton).setOnClickListener(v -> chooseIcon());
         findViewById(R.id.miscButton).setOnClickListener(v -> openMisc());
+        findViewById(R.id.liveLogButton).setOnClickListener(v -> showLiveLog());
         findViewById(R.id.fireflySrtoolsButton).setOnClickListener(
                 v -> openWebsite(FIREFLY_SRTOOLS_URL));
         findViewById(R.id.neonteamSrtoolsButton).setOnClickListener(
@@ -115,6 +135,11 @@ public class MainActivity extends Activity {
     @Override protected void onStop() {
         if (receiverRegistered) { unregisterReceiver(stateReceiver); receiverRegistered = false; }
         super.onStop();
+    }
+
+    @Override protected void onDestroy() {
+        closeLiveLog();
+        super.onDestroy();
     }
 
     private void startServer() {
@@ -193,6 +218,7 @@ public class MainActivity extends Activity {
         setText(R.id.clearButton, R.string.clear_lineup);
         setText(R.id.iconButton, R.string.change_apk_icon);
         setText(R.id.miscButton, R.string.open_misc_files);
+        setText(R.id.liveLogButton, R.string.open_live_log);
         setText(R.id.fireflySrtoolsButton, R.string.open_firefly_srtools);
         setText(R.id.neonteamSrtoolsButton, R.string.open_neonteam_srtools);
         renderServerState();
@@ -339,6 +365,95 @@ public class MainActivity extends Activity {
         } catch (Exception error) {
             showError(error);
         }
+    }
+
+    private void showLiveLog() {
+        if (!ensureStorageAccess()) return;
+        if (liveLogDialog != null && liveLogDialog.isShowing()) return;
+
+        liveLogText = new TextView(this);
+        liveLogText.setText(ui(R.string.live_log_waiting));
+        liveLogText.setTextColor(getColor(R.color.text_secondary));
+        liveLogText.setTextSize(12);
+        liveLogText.setTypeface(Typeface.MONOSPACE);
+        liveLogText.setTextIsSelectable(true);
+        liveLogText.setPadding(24, 20, 24, 20);
+
+        liveLogScroll = new ScrollView(this);
+        liveLogScroll.setFillViewport(true);
+        liveLogScroll.addView(liveLogText, new ScrollView.LayoutParams(
+                ScrollView.LayoutParams.MATCH_PARENT, ScrollView.LayoutParams.WRAP_CONTENT));
+
+        liveLogDialog = new AlertDialog.Builder(this)
+                .setTitle(ui(R.string.live_log_title))
+                .setView(liveLogScroll)
+                .setNeutralButton(ui(R.string.clear_log), null)
+                .setPositiveButton(ui(R.string.close), null)
+                .create();
+        liveLogDialog.setOnShowListener(ignored -> {
+            liveLogDialog.getButton(AlertDialog.BUTTON_NEUTRAL)
+                    .setOnClickListener(view -> clearLiveLog());
+            liveLogLength = -1;
+            liveLogModified = -1;
+            liveLogHandler.post(liveLogRefresh);
+        });
+        liveLogDialog.setOnDismissListener(ignored -> closeLiveLog());
+        liveLogDialog.show();
+    }
+
+    private void refreshLiveLog() {
+        if (liveLogText == null) return;
+        File file = new File(ServerFiles.directory(this), "logs/server.log");
+        if (!file.isFile()) {
+            liveLogText.setText(ui(R.string.live_log_waiting));
+            return;
+        }
+        long length = file.length();
+        long modified = file.lastModified();
+        if (length == liveLogLength && modified == liveLogModified) return;
+        try (RandomAccessFile input = new RandomAccessFile(file, "r")) {
+            long start = Math.max(0, length - MAX_LIVE_LOG_BYTES);
+            input.seek(start);
+            byte[] content = new byte[(int) (length - start)];
+            input.readFully(content);
+            String value = new String(content, StandardCharsets.UTF_8);
+            if (start > 0) {
+                int firstLine = value.indexOf('\n');
+                value = ui(R.string.live_log_truncated) + "\n"
+                        + (firstLine >= 0 ? value.substring(firstLine + 1) : value);
+            }
+            liveLogText.setText(value.isEmpty() ? ui(R.string.live_log_empty) : value);
+            liveLogLength = length;
+            liveLogModified = modified;
+            liveLogScroll.post(() -> liveLogScroll.fullScroll(View.FOCUS_DOWN));
+        } catch (Exception error) {
+            liveLogText.setText(ui(R.string.live_log_read_failed, error.getMessage()));
+        }
+    }
+
+    private void clearLiveLog() {
+        File file = new File(ServerFiles.directory(this), "logs/server.log");
+        try {
+            File parent = file.getParentFile();
+            if (parent != null && !parent.isDirectory() && !parent.mkdirs()) {
+                throw new java.io.IOException("Cannot create " + parent);
+            }
+            try (RandomAccessFile output = new RandomAccessFile(file, "rw")) {
+                output.setLength(0);
+            }
+            liveLogLength = -1;
+            liveLogModified = -1;
+            refreshLiveLog();
+        } catch (Exception error) {
+            showError(error);
+        }
+    }
+
+    private void closeLiveLog() {
+        liveLogHandler.removeCallbacks(liveLogRefresh);
+        liveLogDialog = null;
+        liveLogText = null;
+        liveLogScroll = null;
     }
 
     private void collectJsonFiles(File directory, List<File> result) {
