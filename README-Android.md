@@ -6,8 +6,9 @@ Flask、Requests、Protobuf 和 dataclasses-json，并通过 Android 前台服�
 ## 云端编译
 
 1. 将整个目录（必须包含 `build/`）推送到 GitHub 仓库。
-2. 打开 **Actions > Build standalone Android APK > Run workflow**。
-3. 构建完成后下载 `ppSR-Standalone-APKs` artifact。
+2. 推送到 `ppSR-4.6.51-测试UI`、`main` 或 `master` 后会自动触发
+   **Build standalone Android APK**；也可以在 Actions 页面手动运行。
+3. 构建完成后下载 `ppSR-Standalone-APKs` artifact，其中同时包含 debug 和 release APK。
 
 ## 启动与密码
 
@@ -37,6 +38,34 @@ Flask、Requests、Protobuf 和 dataclasses-json，并通过 Android 前台服�
 - 服务通过 Android 前台通知持续运行。
 - 在 App 内实时查看服务器输出，关闭日志窗口不会停止服务。
 - 更新 APK 时保留 `persistent.json` 和 `freesr-data.json`；版本对应的 `hotfix.json` 会更新。
+
+## 地图传送
+
+地图传送器已原生集成到 Android 界面，不需要 PowerShell、BAT、Termux 或 Windows
+`ppsr.exe`。内置数据包含 8 个世界和 85 张地图，其中有 16 张花萼战斗地图和 69 张探索地图。
+
+使用步骤：
+
+1. 如果服务器正在运行，先点击“停止服务器”。停止操作会结束服务进程，需要重新打开 App。
+2. 使用右上角 **CN/EN** 按钮选择界面语言；世界、地图名称和地图说明会同步切换。
+3. 在“快捷功能”中点击“地图传送 / Map teleport”。
+4. 选择“全部地图”“可战斗地图（花萼）”或“仅探索地图”。
+5. 依次选择世界和地图，确认 Plane、地图层级、坐标及地图说明。
+6. 点击“传送”。App 会更新 `misc/persistent.json`，并在同一目录生成
+   `persistent.json.bak` 备份。
+7. 返回首页并启动服务器，重新进入游戏后即可在新地图出生。
+
+服务器只在启动时读取出生地图，因此运行中不能切图，也不会在当前游戏会话中即时传送。
+每次传送都会覆盖上一份 `.bak`；需要恢复时，在服务器停止状态下用文件管理器将
+`persistent.json.bak` 恢复为 `persistent.json`。
+
+战斗地图会写入对应的花萼坐标、Group ID、Inst ID、Entity ID 和 Prop ID。探索地图会将
+花萼放到地下，减少误触后卡在加载界面的风险。地图选择只修改 `persistent.json` 的 `scene`
+对象，不会覆盖密码、配队、角色配置或 `freesr-data.json`。
+
+地图及坐标数据来自
+[CAtlas0784/Escape-penacony](https://github.com/CAtlas0784/Escape-penacony)
+`main@85f8c6c`，对应 ppSR 4.6.5X 数据结构。
 
 ## PNG 图标和背景
 
