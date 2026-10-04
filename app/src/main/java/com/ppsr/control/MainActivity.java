@@ -36,6 +36,7 @@ public class MainActivity extends Activity {
     private static final long LARGE_JSON_SIZE = 512 * 1024;
     private static final int MAX_LIVE_LOG_BYTES = 128 * 1024;
     private static final long LIVE_LOG_REFRESH_MS = 500;
+    private static final long SERVER_START_TIMEOUT_MS = 125_000;
     private static final String FIREFLY_SRTOOLS_URL = "https://srtools.punklorde.org/";
     private static final String NEONTEAM_SRTOOLS_URL = "https://srtools.neonteam.dev/1001/detail";
     private TextView serverState;
@@ -47,6 +48,15 @@ public class MainActivity extends Activity {
     private boolean storageInitialized;
     private boolean notificationPermissionRequested;
     private final Handler liveLogHandler = new Handler(Looper.getMainLooper());
+    private final Handler serverStateHandler = new Handler(Looper.getMainLooper());
+    private final Runnable serverStartTimeout = () -> {
+        if (serverUiState != ServerUiState.STARTING
+                && serverUiState != ServerUiState.VALIDATING) return;
+        setServerUiState(ServerUiState.STOPPED);
+        new AlertDialog.Builder(this).setTitle(ui(R.string.start_failed))
+                .setMessage(ui(R.string.server_start_timeout))
+                .setPositiveButton(ui(R.string.close), null).show();
+    };
     private AlertDialog liveLogDialog;
     private TextView liveLogText;
     private ScrollView liveLogScroll;
@@ -63,7 +73,9 @@ public class MainActivity extends Activity {
     private final BroadcastReceiver stateReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context context, Intent intent) {
             boolean running = intent.getBooleanExtra(PythonServerService.EXTRA_RUNNING, false);
-            showState(running);
+            boolean starting = intent.getBooleanExtra(PythonServerService.EXTRA_STARTING, false);
+            if (starting) showValidatingState();
+            else showState(running);
             String error = intent.getStringExtra(PythonServerService.EXTRA_ERROR);
             if (error != null) new AlertDialog.Builder(MainActivity.this)
                     .setTitle(ui(R.string.start_failed)).setMessage(error)
@@ -119,7 +131,8 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(stateReceiver, filter, RECEIVER_NOT_EXPORTED);
         else registerReceiver(stateReceiver, filter);
         receiverRegistered = true;
-        showState(PythonServerService.isRunning());
+        startService(new Intent(this, PythonServerService.class)
+                .setAction(PythonServerService.ACTION_STATUS));
         refreshLineup();
     }
 
@@ -141,6 +154,7 @@ public class MainActivity extends Activity {
 
     @Override protected void onDestroy() {
         closeLiveLog();
+        serverStateHandler.removeCallbacks(serverStartTimeout);
         super.onDestroy();
     }
 
@@ -184,10 +198,17 @@ public class MainActivity extends Activity {
         setServerUiState(running ? ServerUiState.RUNNING : ServerUiState.STOPPED);
     }
 
-    protected void showValidatingState() { setServerUiState(ServerUiState.VALIDATING); }
+    protected void showValidatingState() {
+        setServerUiState(ServerUiState.VALIDATING);
+        serverStateHandler.removeCallbacks(serverStartTimeout);
+        serverStateHandler.postDelayed(serverStartTimeout, SERVER_START_TIMEOUT_MS);
+    }
 
     private void setServerUiState(ServerUiState state) {
         serverUiState = state;
+        if (state != ServerUiState.STARTING && state != ServerUiState.VALIDATING) {
+            serverStateHandler.removeCallbacks(serverStartTimeout);
+        }
         renderServerState();
     }
 
@@ -318,7 +339,7 @@ public class MainActivity extends Activity {
 
     private void showMapTeleport() {
         if (!ensureStorageAccess()) return;
-        if (PythonServerService.isRunning() || serverUiState != ServerUiState.STOPPED) {
+        if (serverUiState != ServerUiState.STOPPED) {
             new AlertDialog.Builder(this).setTitle(ui(R.string.map_teleport))
                     .setMessage(ui(R.string.teleport_stop_server))
                     .setPositiveButton(ui(R.string.close), null).show();

@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 final class ServerFiles {
-    private static final String PAYLOAD_VERSION = "4.6.51-2";
+    private static final String PAYLOAD_VERSION = "4.6.51-3";
     private ServerFiles() {}
 
     static File directory(Context context) {
@@ -31,6 +31,7 @@ final class ServerFiles {
                 ? new String(Files.readAllBytes(marker.toPath()), StandardCharsets.UTF_8) : "";
         if (!PAYLOAD_VERSION.equals(installed)) {
             copyTree(context.getAssets(), "server", destination, destination);
+            Files.deleteIfExists(new File(destination, "misc/classes_pb2.py").toPath());
             writeFile(marker, PAYLOAD_VERSION.getBytes(StandardCharsets.UTF_8));
         }
         return destination;

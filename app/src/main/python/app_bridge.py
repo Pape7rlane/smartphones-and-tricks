@@ -64,6 +64,10 @@ def _configure_logging(server_dir):
           "ppSR 4.6.51 live log started")
 
 
+def _stage(message):
+    print(f"[{datetime.now().astimezone().isoformat(timespec='seconds')}] {message}", flush=True)
+
+
 def start(server_dir):
     global _module
     with _lock:
@@ -74,13 +78,16 @@ def start(server_dir):
         if server_dir not in sys.path:
             sys.path.insert(0, server_dir)
         try:
+            _stage("Loading ppSR server module")
             path = os.path.join(server_dir, "ppsr.pyc")
             loader = importlib.machinery.SourcelessFileLoader("ppsr_embedded", path)
             spec = importlib.util.spec_from_loader(loader.name, loader)
             module = importlib.util.module_from_spec(spec)
             loader.exec_module(module)
 
+            _stage("Loading persistent configuration")
             module.Manager.init()
+            _stage("Validating server password")
             check = getattr(module, "check_access", None)
             if check is not None:
                 key = module.Manager.persistent.get("key", "")
@@ -88,10 +95,12 @@ def start(server_dir):
                 if not valid:
                     raise PermissionError("服务器密码错误或已过期，请输入服主发布的新密码")
 
+            _stage("Loading game resources")
             module.ResourceManager.load_resources()
+            _stage("Starting dispatch and game servers")
             module.start_servers()
             _module = module
-            print("ppSR server started at 127.0.0.1:21000")
+            _stage("ppSR server started at 127.0.0.1:21000")
             return "started"
         except BaseException:
             traceback.print_exc()

@@ -37,6 +37,7 @@ Flask、Requests、Protobuf 和 dataclasses-json，并通过 Android 前台服�
 - 原生地图传送器，包含 85 张地图以及中英文名称，并按战斗/探索类型筛选。
 - 服务通过 Android 前台通知持续运行。
 - 在 App 内实时查看服务器输出，关闭日志窗口不会停止服务。
+- 启动日志按模块加载、配置、密码、资源和网络服务分阶段显示；超过 120 秒会自动报错退出。
 - 更新 APK 时保留 `persistent.json` 和 `freesr-data.json`；版本对应的 `hotfix.json` 会更新。
 
 ## 地图传送

@@ -48,6 +48,7 @@
     <string name="open_firefly_srtools">打开 Firefly_Srtools 网站</string>
     <string name="open_neonteam_srtools">打开 srtools.neonteam 网站</string>
     <string name="start_failed">启动失败</string>
+    <string name="server_start_timeout">服务器启动超过 120 秒。请打开“实时日志”，查看最后完成的启动步骤。</string>
     <string name="close">关闭</string>
     <string name="cancel">取消</string>
     <string name="back">返回</string>

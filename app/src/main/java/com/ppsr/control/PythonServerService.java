@@ -18,15 +18,26 @@ import java.util.concurrent.Executors;
 public class PythonServerService extends Service {
     static final String ACTION_START = "com.ppsr.control.START";
     static final String ACTION_STOP = "com.ppsr.control.STOP";
+    static final String ACTION_STATUS = "com.ppsr.control.STATUS";
     static final String ACTION_STATE = "com.ppsr.control.STATE";
     static final String EXTRA_RUNNING = "running";
+    static final String EXTRA_STARTING = "starting";
     static final String EXTRA_ERROR = "error";
     private static final String CHANNEL = "ppsr_server";
     private static final int NOTIFICATION_ID = 21000;
+    private static final long START_TIMEOUT_MS = 120_000;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final Handler handler = new Handler(android.os.Looper.getMainLooper());
     private static volatile boolean running;
-
-    static boolean isRunning() { return running; }
+    private static volatile boolean starting;
+    private final Runnable startTimeout = () -> {
+        if (!starting || running) return;
+        starting = false;
+        broadcast(false, "服务器启动超过 120 秒，请查看实时日志确认最后完成的步骤");
+        stopForeground(STOP_FOREGROUND_REMOVE);
+        stopSelf();
+        terminateServerProcess(500);
+    };
 
     @Override public void onCreate() {
         super.onCreate();
@@ -39,6 +50,11 @@ public class PythonServerService extends Service {
         String action = intent == null ? ACTION_START : intent.getAction();
         if (ACTION_STOP.equals(action)) {
             stopServer();
+            return START_NOT_STICKY;
+        }
+        if (ACTION_STATUS.equals(action)) {
+            broadcast(running, null);
+            if (!running && !starting) stopSelf();
             return START_NOT_STICKY;
         }
         startForeground(NOTIFICATION_ID, notification("正在校验密码并启动..."));
@@ -55,17 +71,25 @@ public class PythonServerService extends Service {
 
     private void startServer() {
         if (running) { broadcast(true, null); return; }
+        if (starting) return;
+        starting = true;
+        handler.postDelayed(startTimeout, START_TIMEOUT_MS);
         executor.execute(() -> {
             try {
                 File directory = ServerFiles.install(this);
                 if (!Python.isStarted()) Python.start(new AndroidPlatform(this));
                 Python.getInstance().getModule("app_bridge").callAttr("start", directory.getAbsolutePath());
+                if (!starting) return;
                 running = true;
+                starting = false;
+                handler.removeCallbacks(startTimeout);
                 getSystemService(NotificationManager.class).notify(NOTIFICATION_ID,
                         notification("运行中 · 127.0.0.1:21000"));
                 broadcast(true, null);
             } catch (Throwable error) {
                 running = false;
+                starting = false;
+                handler.removeCallbacks(startTimeout);
                 broadcast(false, error.toString());
                 stopForeground(STOP_FOREGROUND_REMOVE);
                 stopSelf();
@@ -75,6 +99,8 @@ public class PythonServerService extends Service {
     }
 
     private void stopServer() {
+        starting = false;
+        handler.removeCallbacks(startTimeout);
         broadcast(false, null);
         stopForeground(STOP_FOREGROUND_REMOVE);
         terminateServerProcess(2000);
@@ -112,6 +138,7 @@ public class PythonServerService extends Service {
     private void broadcast(boolean isRunning, String error) {
         Intent state = new Intent(ACTION_STATE).setPackage(getPackageName());
         state.putExtra(EXTRA_RUNNING, isRunning);
+        state.putExtra(EXTRA_STARTING, starting);
         if (error != null) state.putExtra(EXTRA_ERROR, error);
         sendBroadcast(state);
     }
@@ -119,6 +146,8 @@ public class PythonServerService extends Service {
     @Override public IBinder onBind(Intent intent) { return null; }
     @Override public void onDestroy() {
         running = false;
+        starting = false;
+        handler.removeCallbacks(startTimeout);
         executor.shutdown();
         super.onDestroy();
     }
