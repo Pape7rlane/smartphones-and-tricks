@@ -101,6 +101,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.selectButton).setOnClickListener(v -> choosePath(false));
         findViewById(R.id.addPathButton).setOnClickListener(v -> choosePath(true));
         findViewById(R.id.manualButton).setOnClickListener(v -> inputCharacterIds());
+        findViewById(R.id.mapTeleportButton).setOnClickListener(v -> showMapTeleport());
         findViewById(R.id.removeButton).setOnClickListener(v -> inputRemoveIndex());
         findViewById(R.id.clearButton).setOnClickListener(v -> confirmClear());
         findViewById(R.id.iconButton).setOnClickListener(v -> chooseIcon());
@@ -118,6 +119,7 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(stateReceiver, filter, RECEIVER_NOT_EXPORTED);
         else registerReceiver(stateReceiver, filter);
         receiverRegistered = true;
+        showState(PythonServerService.isRunning());
         refreshLineup();
     }
 
@@ -214,6 +216,7 @@ public class MainActivity extends Activity {
         setText(R.id.selectButton, R.string.select_character_by_path);
         setText(R.id.addPathButton, R.string.add_entire_path);
         setText(R.id.manualButton, R.string.enter_character_ids);
+        setText(R.id.mapTeleportButton, R.string.map_teleport);
         setText(R.id.removeButton, R.string.remove_character);
         setText(R.id.clearButton, R.string.clear_lineup);
         setText(R.id.iconButton, R.string.change_apk_icon);
@@ -310,6 +313,92 @@ public class MainActivity extends Activity {
                 .setPositiveButton(ui(R.string.remove), (d, w) -> {
                     try { ConfigStore.removeAt(this, Integer.parseInt(input.getText().toString())); refreshLineup(); }
                     catch (Exception error) { showError(error); }
+                }).setNegativeButton(ui(R.string.cancel), null).show();
+    }
+
+    private void showMapTeleport() {
+        if (!ensureStorageAccess()) return;
+        if (PythonServerService.isRunning() || serverUiState != ServerUiState.STOPPED) {
+            new AlertDialog.Builder(this).setTitle(ui(R.string.map_teleport))
+                    .setMessage(ui(R.string.teleport_stop_server))
+                    .setPositiveButton(ui(R.string.close), null).show();
+            return;
+        }
+        try {
+            List<SceneCatalog.Planet> planets = SceneCatalog.load(this);
+            String[] filters = new String[]{ui(R.string.map_filter_all),
+                    ui(R.string.map_filter_combat), ui(R.string.map_filter_exploration)};
+            new AlertDialog.Builder(this).setTitle(ui(R.string.map_filter_title))
+                    .setItems(filters, (dialog, which) -> showTeleportPlanets(planets, which))
+                    .setNegativeButton(ui(R.string.cancel), null).show();
+        } catch (Exception error) {
+            showError(error);
+        }
+    }
+
+    private void showTeleportPlanets(List<SceneCatalog.Planet> catalog, int filter) {
+        List<SceneCatalog.Planet> planets = new ArrayList<>();
+        List<Integer> counts = new ArrayList<>();
+        for (SceneCatalog.Planet planet : catalog) {
+            int count = filteredScenes(planet, filter).size();
+            if (count > 0) {
+                planets.add(planet);
+                counts.add(count);
+            }
+        }
+        boolean english = UiLanguage.isEnglish(this);
+        String[] labels = new String[planets.size()];
+        for (int i = 0; i < planets.size(); i++) {
+            labels[i] = ui(R.string.map_world_count,
+                    planets.get(i).localizedName(english), counts.get(i));
+        }
+        new AlertDialog.Builder(this).setTitle(ui(R.string.map_choose_world))
+                .setItems(labels, (dialog, which) ->
+                        showTeleportScenes(catalog, planets.get(which), filter))
+                .setNegativeButton(ui(R.string.back), (dialog, which) -> showMapTeleport()).show();
+    }
+
+    private void showTeleportScenes(List<SceneCatalog.Planet> catalog,
+                                    SceneCatalog.Planet planet, int filter) {
+        List<SceneCatalog.Scene> scenes = filteredScenes(planet, filter);
+        boolean english = UiLanguage.isEnglish(this);
+        String[] labels = new String[scenes.size()];
+        for (int i = 0; i < scenes.size(); i++) {
+            SceneCatalog.Scene scene = scenes.get(i);
+            labels[i] = ui(scene.combat ? R.string.map_scene_combat : R.string.map_scene_exploration,
+                    scene.localizedName(english), scene.planeId);
+        }
+        new AlertDialog.Builder(this).setTitle(planet.localizedName(english))
+                .setItems(labels, (dialog, which) -> confirmTeleport(planet, scenes.get(which)))
+                .setNegativeButton(ui(R.string.back),
+                        (dialog, which) -> showTeleportPlanets(catalog, filter)).show();
+    }
+
+    private List<SceneCatalog.Scene> filteredScenes(SceneCatalog.Planet planet, int filter) {
+        List<SceneCatalog.Scene> result = new ArrayList<>();
+        for (SceneCatalog.Scene scene : planet.scenes) {
+            if (filter == 0 || (filter == 1 && scene.combat) || (filter == 2 && !scene.combat)) {
+                result.add(scene);
+            }
+        }
+        return result;
+    }
+
+    private void confirmTeleport(SceneCatalog.Planet planet, SceneCatalog.Scene scene) {
+        boolean english = UiLanguage.isEnglish(this);
+        String description = scene.localizedDescription(english);
+        String details = ui(R.string.teleport_confirm_message, planet.localizedName(english),
+                scene.localizedName(english), scene.planeId, scene.mapLayer,
+                scene.x, scene.y, scene.z, description);
+        new AlertDialog.Builder(this).setTitle(ui(R.string.teleport_confirm_title))
+                .setMessage(details)
+                .setPositiveButton(ui(R.string.teleport), (dialog, which) -> {
+                    try {
+                        ConfigStore.applyScene(this, scene.data);
+                        toast(ui(R.string.teleport_saved, scene.localizedName(english)));
+                    } catch (Exception error) {
+                        showError(error);
+                    }
                 }).setNegativeButton(ui(R.string.cancel), null).show();
     }
 

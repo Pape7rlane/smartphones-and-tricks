@@ -24,7 +24,9 @@ public class PythonServerService extends Service {
     private static final String CHANNEL = "ppsr_server";
     private static final int NOTIFICATION_ID = 21000;
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private volatile boolean running;
+    private static volatile boolean running;
+
+    static boolean isRunning() { return running; }
 
     @Override public void onCreate() {
         super.onCreate();
@@ -115,5 +117,9 @@ public class PythonServerService extends Service {
     }
 
     @Override public IBinder onBind(Intent intent) { return null; }
-    @Override public void onDestroy() { executor.shutdown(); super.onDestroy(); }
+    @Override public void onDestroy() {
+        running = false;
+        executor.shutdown();
+        super.onDestroy();
+    }
 }
