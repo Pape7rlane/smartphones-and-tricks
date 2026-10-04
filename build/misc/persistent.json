@@ -41,6 +41,11 @@
                 "name": "SW999 Global Passsive",
                 "id": 150602,
                 "active": true
+            },
+            {
+                "name": "Aha Global Passive",
+                "id": 151104,
+                "active": true
             }
         ],
         "buff": [
