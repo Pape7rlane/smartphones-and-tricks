@@ -67,6 +67,48 @@ Flask、Requests、Protobuf 和 dataclasses-json，并通过 Android 前台服�
 [CAtlas0784/Escape-penacony](https://github.com/CAtlas0784/Escape-penacony)
 `main@85f8c6c`，对应 ppSR 4.6.5X 数据结构。
 
+## 从原地图仓库更新
+
+这里的“原仓库”是 `CAtlas0784/Escape-penacony`。Android 版只复用其中的
+`scenes.json` 地图数据；不要复制 `ppsr_teleport.ps1`、`change_scene.bat`、
+`start_ppsr.bat` 或查找/重启 `ppsr.exe` 的代码，因为这些仅适用于 Windows。
+
+在 `smartphones-and-tricks` 仓库根目录执行：
+
+```sh
+git ls-remote https://github.com/CAtlas0784/Escape-penacony.git refs/heads/main
+
+map_upstream="$(mktemp -d)"
+git clone --depth 1 --branch main \
+  https://github.com/CAtlas0784/Escape-penacony.git "$map_upstream"
+git -C "$map_upstream" rev-parse HEAD
+cp "$map_upstream/scenes.json" app/src/main/assets/scenes.json
+```
+
+记下 `rev-parse` 输出的新提交 SHA，然后检查地图结构和数量：
+
+```sh
+node -e 'const d=require("./app/src/main/assets/scenes.json"); const s=d.planets.flatMap(p=>p.scenes); const required=["name","name_zh","desc","desc_zh","plane_id","x","y","z","map_layer","calyx_supported"]; const bad=s.filter(x=>required.some(k=>x[k]===undefined)); console.log({worlds:d.planets.length,scenes:s.length,combat:s.filter(x=>x.calyx_supported).length,exploration:s.filter(x=>!x.calyx_supported).length,invalid:bad.length}); if(bad.length) process.exit(1)'
+
+git diff --check
+git diff -- app/src/main/assets/scenes.json
+```
+
+更新时还必须完成以下事项：
+
+1. 将本文和根目录 `README.md` 中的世界数、地图数、战斗/探索数量改为校验结果。
+2. 将两份 README 中的 `main@85f8c6c` 更新为新上游提交的短 SHA。
+3. 如果上游改了字段名称或嵌套结构，同步修改 `SceneCatalog.java`；如果改了写入
+   `persistent.json` 的字段，同步修改 `ConfigStore.applyScene()`。
+4. 在 `app/build.gradle` 递增 `versionCode`，保证手机可以覆盖安装新版 APK。
+5. 提交并推送到 `ppSR-4.6.51-测试UI`，等待 **Build standalone Android APK**
+   工作流通过，再下载新的 `ppSR-Standalone-APKs`。
+6. 真机至少测试一张探索地图和一张花萼战斗地图，并确认
+   `Download/ppSR/misc/persistent.json.bak` 已生成且可以恢复。
+
+如果上游只有 PowerShell、BAT 或 README 变化，而 `scenes.json` 没有变化，则 Android
+地图数据不需要更新。不要仅凭上游提交号变化就发布新 APK。
+
 ## PNG 图标和背景
 
 Manifest 和图标切换功能直接读取 `res/drawable-nodpi` 中的图片：
