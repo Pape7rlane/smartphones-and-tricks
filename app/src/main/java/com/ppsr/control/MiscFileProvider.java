@@ -20,7 +20,9 @@ public class MiscFileProvider extends ContentProvider {
         File root = miscRoot(context);
         String rootPath = root.getCanonicalPath() + File.separator;
         String filePath = file.getCanonicalPath();
-        if (!filePath.startsWith(rootPath)) throw new SecurityException("文件不在 misc 目录中");
+        if (!filePath.startsWith(rootPath)) {
+            throw new SecurityException(UiLanguage.text(context, R.string.misc_file_outside));
+        }
         String relative = filePath.substring(rootPath.length());
         Uri.Builder builder = new Uri.Builder().scheme("content")
                 .authority(context.getPackageName() + AUTHORITY_SUFFIX);

@@ -94,6 +94,14 @@
     <string name="save_and_start">保存并启动</string>
     <string name="password_required">请输入服务器密码</string>
     <string name="password_save_failed">密码保存失败</string>
+    <string name="invalid_lineup_index">配队序号无效</string>
+    <string name="storage_access_required">请重新授予所有文件访问权限，才能写入 Download/ppSR</string>
+    <string name="storage_write_failed">无法写入 %1$s。请确认已授予所有文件访问权限；如仍失败，请备份 misc 后删除旧 ppSR 目录。</string>
+    <string name="storage_permission_expired">存储权限已失效。请打开 ppSR 并重新授予所有文件访问权限。</string>
+    <string name="notification_channel_name">ppSR 服务</string>
+    <string name="notification_title">ppSR 游戏服务器</string>
+    <string name="misc_file_outside">文件不在 misc 目录中</string>
+    <string name="server_password_invalid">服务器密码错误或已过期，请输入服主发布的新密码</string>
 
     <string-array name="path_labels">
         <item>毁灭</item><item>巡猎</item><item>智识</item><item>同谐</item><item>虚无</item><item>存护</item><item>丰饶</item><item>记忆</item><item>欢愉</item>

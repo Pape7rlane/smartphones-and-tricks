@@ -32,7 +32,9 @@ final class ConfigStore {
         JSONObject root = read(context);
         JSONArray lineup = root.getJSONObject("avatar").getJSONArray("lineup");
         int index = oneBasedIndex - 1;
-        if (index < 0 || index >= lineup.length()) throw new IllegalArgumentException("无效序号");
+        if (index < 0 || index >= lineup.length()) {
+            throw new IllegalArgumentException(UiLanguage.text(context, R.string.invalid_lineup_index));
+        }
         lineup.remove(index);
         write(context, root);
     }

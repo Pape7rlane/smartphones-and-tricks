@@ -68,7 +68,7 @@ def _stage(message):
     print(f"[{datetime.now().astimezone().isoformat(timespec='seconds')}] {message}", flush=True)
 
 
-def start(server_dir):
+def start(server_dir, invalid_password_message="The server password is incorrect or has expired"):
     global _module
     with _lock:
         if _module is not None:
@@ -93,7 +93,7 @@ def start(server_dir):
                 key = module.Manager.persistent.get("key", "")
                 valid = check() if len(inspect.signature(check).parameters) == 0 else check(key)
                 if not valid:
-                    raise PermissionError("服务器密码错误或已过期，请输入服主发布的新密码")
+                    raise PermissionError(invalid_password_message)
 
             _stage("Loading game resources")
             module.ResourceManager.load_resources()

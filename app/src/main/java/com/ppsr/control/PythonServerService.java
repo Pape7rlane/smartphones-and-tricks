@@ -33,7 +33,7 @@ public class PythonServerService extends Service {
     private final Runnable startTimeout = () -> {
         if (!starting || running) return;
         starting = false;
-        broadcast(false, "服务器启动超过 120 秒，请查看实时日志确认最后完成的步骤");
+        broadcast(false, ui(R.string.server_start_timeout));
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();
         terminateServerProcess(500);
@@ -41,7 +41,8 @@ public class PythonServerService extends Service {
 
     @Override public void onCreate() {
         super.onCreate();
-        NotificationChannel channel = new NotificationChannel(CHANNEL, "ppSR 服务",
+        NotificationChannel channel = new NotificationChannel(CHANNEL,
+                ui(R.string.notification_channel_name),
                 NotificationManager.IMPORTANCE_LOW);
         getSystemService(NotificationManager.class).createNotificationChannel(channel);
     }
@@ -57,9 +58,9 @@ public class PythonServerService extends Service {
             if (!running && !starting) stopSelf();
             return START_NOT_STICKY;
         }
-        startForeground(NOTIFICATION_ID, notification("正在校验密码并启动..."));
+        startForeground(NOTIFICATION_ID, notification(ui(R.string.server_validating)));
         if (!StorageAccess.isGranted(this)) {
-            broadcast(false, "存储权限已失效，请打开 ppSR 并重新授予所有文件访问权限");
+            broadcast(false, ui(R.string.storage_permission_expired));
             stopForeground(STOP_FOREGROUND_REMOVE);
             stopSelf();
             terminateServerProcess(250);
@@ -78,13 +79,14 @@ public class PythonServerService extends Service {
             try {
                 File directory = ServerFiles.install(this);
                 if (!Python.isStarted()) Python.start(new AndroidPlatform(this));
-                Python.getInstance().getModule("app_bridge").callAttr("start", directory.getAbsolutePath());
+                Python.getInstance().getModule("app_bridge").callAttr("start",
+                        directory.getAbsolutePath(), ui(R.string.server_password_invalid));
                 if (!starting) return;
                 running = true;
                 starting = false;
                 handler.removeCallbacks(startTimeout);
                 getSystemService(NotificationManager.class).notify(NOTIFICATION_ID,
-                        notification("运行中 · 127.0.0.1:21000"));
+                        notification(ui(R.string.running_at)));
                 broadcast(true, null);
             } catch (Throwable error) {
                 running = false;
@@ -130,9 +132,14 @@ public class PythonServerService extends Service {
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         return new Notification.Builder(this, CHANNEL)
                 .setSmallIcon(android.R.drawable.stat_notify_sync)
-                .setContentTitle("ppSR 游戏服务器").setContentText(status)
+                .setContentTitle(ui(R.string.notification_title)).setContentText(status)
                 .setContentIntent(content).setOngoing(true)
-                .addAction(new Notification.Action.Builder(null, "停止", stopAction).build()).build();
+                .addAction(new Notification.Action.Builder(null, ui(R.string.stop_server),
+                        stopAction).build()).build();
+    }
+
+    private String ui(int resource, Object... arguments) {
+        return UiLanguage.text(this, resource, arguments);
     }
 
     private void broadcast(boolean isRunning, String error) {
