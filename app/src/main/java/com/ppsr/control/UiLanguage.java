@@ -12,15 +12,21 @@ final class UiLanguage {
     private UiLanguage() {}
 
     static boolean isEnglish(Context context) {
+        if (isSystemChinese(context)) return false;
+
         SharedPreferences preferences = context.getSharedPreferences(
                 PREFERENCES, Context.MODE_PRIVATE);
         if (preferences.contains(ENGLISH)) return preferences.getBoolean(ENGLISH, false);
+        return true;
+    }
 
+    static boolean isSystemChinese(Context context) {
         Locale systemLocale = context.getResources().getConfiguration().getLocales().get(0);
-        return !Locale.CHINESE.getLanguage().equals(systemLocale.getLanguage());
+        return Locale.CHINESE.getLanguage().equals(systemLocale.getLanguage());
     }
 
     static void toggle(Context context) {
+        if (isSystemChinese(context)) return;
         context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit()
                 .putBoolean(ENGLISH, !isEnglish(context)).apply();
     }

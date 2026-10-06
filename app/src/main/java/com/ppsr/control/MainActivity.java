@@ -102,10 +102,14 @@ public class MainActivity extends Activity {
         startButton = findViewById(R.id.startButton);
         lineupValue = findViewById(R.id.lineupValue);
         languageButton = findViewById(R.id.languageButton);
-        languageButton.setOnClickListener(v -> {
-            UiLanguage.toggle(this);
-            applyLanguage();
-        });
+        if (UiLanguage.isSystemChinese(this)) {
+            languageButton.setVisibility(View.GONE);
+        } else {
+            languageButton.setOnClickListener(v -> {
+                UiLanguage.toggle(this);
+                applyLanguage();
+            });
+        }
         startButton.setOnClickListener(v -> startServer());
         findViewById(R.id.stopButton).setOnClickListener(v -> stopServer());
         findViewById(R.id.tbButton).setOnClickListener(v -> chooseTrailblazer());
