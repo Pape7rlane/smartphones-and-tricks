@@ -143,6 +143,7 @@
                 <TextView android:id="@+id/addPathButton" style="@style/PpSRFunctionButton" android:text="@string/add_entire_path" />
                 <TextView android:id="@+id/manualButton" style="@style/PpSRFunctionButton" android:text="@string/enter_character_ids" />
                 <TextView android:id="@+id/mapTeleportButton" style="@style/PpSRFunctionButton" android:text="@string/map_teleport" />
+                <TextView android:id="@+id/mapTeleportHelpButton" style="@style/PpSRFunctionButton" android:text="@string/map_teleport_help" />
             </LinearLayout>
 
             <LinearLayout

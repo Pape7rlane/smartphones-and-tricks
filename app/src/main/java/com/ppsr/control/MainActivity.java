@@ -114,6 +114,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.addPathButton).setOnClickListener(v -> choosePath(true));
         findViewById(R.id.manualButton).setOnClickListener(v -> inputCharacterIds());
         findViewById(R.id.mapTeleportButton).setOnClickListener(v -> showMapTeleport());
+        findViewById(R.id.mapTeleportHelpButton).setOnClickListener(v -> showMapTeleportHelp());
         findViewById(R.id.removeButton).setOnClickListener(v -> inputRemoveIndex());
         findViewById(R.id.clearButton).setOnClickListener(v -> confirmClear());
         findViewById(R.id.iconButton).setOnClickListener(v -> chooseIcon());
@@ -238,6 +239,7 @@ public class MainActivity extends Activity {
         setText(R.id.addPathButton, R.string.add_entire_path);
         setText(R.id.manualButton, R.string.enter_character_ids);
         setText(R.id.mapTeleportButton, R.string.map_teleport);
+        setText(R.id.mapTeleportHelpButton, R.string.map_teleport_help);
         setText(R.id.removeButton, R.string.remove_character);
         setText(R.id.clearButton, R.string.clear_lineup);
         setText(R.id.iconButton, R.string.change_apk_icon);
@@ -355,6 +357,12 @@ public class MainActivity extends Activity {
         } catch (Exception error) {
             showError(error);
         }
+    }
+
+    private void showMapTeleportHelp() {
+        new AlertDialog.Builder(this).setTitle(ui(R.string.map_teleport_help_title))
+                .setMessage(ui(R.string.map_teleport_help_message))
+                .setPositiveButton(ui(R.string.close), null).show();
     }
 
     private void showTeleportPlanets(List<SceneCatalog.Planet> catalog, int filter) {

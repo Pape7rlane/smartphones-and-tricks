@@ -17,6 +17,9 @@
     <string name="add_entire_path">Add an entire path</string>
     <string name="enter_character_ids">Enter character IDs</string>
     <string name="map_teleport">Map teleport</string>
+    <string name="map_teleport_help">Map teleport guide</string>
+    <string name="map_teleport_help_title">How to use map teleport</string>
+    <string name="map_teleport_help_message">1. Stop the server first. The map can only be changed while the server is stopped.\n\n2. Tap “Map teleport”, then choose all maps, combat maps, or exploration-only maps.\n\n3. Choose a world and map. Check the Plane, layer, position, and description, then tap “Teleport”.\n\n4. Return to the main screen, start the server, and re-enter the game. Teleport does not take effect immediately in the current game session.\n\nEach teleport changes only the scene settings in persistent.json and first creates persistent.json.bak. A new teleport replaces the previous backup. To restore it, stop the server and use a file manager to restore the backup.\n\nCombat maps include Calyx settings. Exploration maps hide the Calyx to reduce loading freezes caused by accidental interaction. Use CN/EN in the top-right corner to switch the interface, map names, and descriptions.</string>
     <string name="map_filter_title">Choose map type</string>
     <string name="map_filter_all">All maps</string>
     <string name="map_filter_combat">Combat maps (Calyx)</string>
