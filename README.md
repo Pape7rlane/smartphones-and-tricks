@@ -70,4 +70,4 @@ Android 版点击“启动服务器”会先显示密码框：首次必须输入
 更详细的 Android 说明见 [README-Android.md](README-Android.md)。
 
 地图与坐标数据来源：[CAtlas0784/Escape-penacony](https://github.com/CAtlas0784/Escape-penacony)
-`main@85f8c6c`。
+`main@9acf35a`。

@@ -66,7 +66,7 @@ Flask、Requests、Protobuf 和 dataclasses-json，并通过 Android 前台服�
 
 地图及坐标数据来自
 [CAtlas0784/Escape-penacony](https://github.com/CAtlas0784/Escape-penacony)
-`main@85f8c6c`，对应 ppSR 4.6.5X 数据结构。
+`main@9acf35a`，对应 ppSR 4.6.5X 数据结构。
 
 ## 从原地图仓库更新
 
@@ -98,7 +98,7 @@ git diff -- app/src/main/assets/scenes.json
 更新时还必须完成以下事项：
 
 1. 将本文和根目录 `README.md` 中的世界数、地图数、战斗/探索数量改为校验结果。
-2. 将两份 README 中的 `main@85f8c6c` 更新为新上游提交的短 SHA。
+2. 将两份 README 中的地图来源提交号更新为新上游提交的短 SHA。
 3. 如果上游改了字段名称或嵌套结构，同步修改 `SceneCatalog.java`；如果改了写入
    `persistent.json` 的字段，同步修改 `ConfigStore.applyScene()`。
 4. 在 `app/build.gradle` 递增 `versionCode`，保证手机可以覆盖安装新版 APK。
