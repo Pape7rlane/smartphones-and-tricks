@@ -1,6 +1,7 @@
 package com.ppsr.control;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import java.util.Locale;
 
@@ -11,8 +12,12 @@ final class UiLanguage {
     private UiLanguage() {}
 
     static boolean isEnglish(Context context) {
-        return context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
-                .getBoolean(ENGLISH, false);
+        SharedPreferences preferences = context.getSharedPreferences(
+                PREFERENCES, Context.MODE_PRIVATE);
+        if (preferences.contains(ENGLISH)) return preferences.getBoolean(ENGLISH, false);
+
+        Locale systemLocale = context.getResources().getConfiguration().getLocales().get(0);
+        return !Locale.CHINESE.getLanguage().equals(systemLocale.getLanguage());
     }
 
     static void toggle(Context context) {
