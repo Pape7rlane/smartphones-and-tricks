@@ -61,7 +61,7 @@
     <string name="switched_path">已切换到：%1$s，重启服务后生效</string>
     <string name="select_path">选择命途</string>
     <string name="add_whole_path_title">加入整个%1$s命途？</string>
-    <string name="add_whole_path_message">将加入 %1$d 个角色，已存在的角色会跳过。</string>
+    <string name="add_whole_path_message">将加入该命途的 %1$d 个角色；配队中已有的角色也会再次加入。</string>
     <string name="add">加入</string>
     <string name="character_ids_hint">例如：1501 1502 1503</string>
     <string name="add_character_ids">添加角色 ID</string>

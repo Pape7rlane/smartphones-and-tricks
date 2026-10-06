@@ -61,7 +61,7 @@
     <string name="switched_path">Path changed to %1$s. Restart the server to apply the change.</string>
     <string name="select_path">Select a Path</string>
     <string name="add_whole_path_title">Add Every Character on the Path of %1$s?</string>
-    <string name="add_whole_path_message">Adds all %1$d characters from this Path to the Current Team. Characters already on the team will not be added again.</string>
+    <string name="add_whole_path_message">Adds all %1$d characters from this Path to the Current Team. Characters already on the team will be added again.</string>
     <string name="add">Add</string>
     <string name="character_ids_hint">Example: 1501 1502 1503</string>
     <string name="add_character_ids">Add Characters by ID</string>
