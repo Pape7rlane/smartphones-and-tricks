@@ -42,7 +42,6 @@ public class MainActivity extends Activity {
     private TextView serverState;
     private TextView startButton;
     private TextView lineupValue;
-    private TextView languageButton;
     private ServerUiState serverUiState = ServerUiState.STOPPED;
     private boolean receiverRegistered;
     private boolean storageInitialized;
@@ -101,15 +100,6 @@ public class MainActivity extends Activity {
         serverState = findViewById(R.id.serverState);
         startButton = findViewById(R.id.startButton);
         lineupValue = findViewById(R.id.lineupValue);
-        languageButton = findViewById(R.id.languageButton);
-        if (UiLanguage.isSystemChinese(this)) {
-            languageButton.setVisibility(View.GONE);
-        } else {
-            languageButton.setOnClickListener(v -> {
-                UiLanguage.toggle(this);
-                applyLanguage();
-            });
-        }
         startButton.setOnClickListener(v -> startServer());
         findViewById(R.id.stopButton).setOnClickListener(v -> stopServer());
         findViewById(R.id.tbButton).setOnClickListener(v -> chooseTrailblazer());
@@ -231,7 +221,6 @@ public class MainActivity extends Activity {
     }
 
     private void applyLanguage() {
-        languageButton.setText(UiLanguage.isEnglish(this) ? "EN" : "CN");
         setText(R.id.serverSectionTitle, R.string.section_server);
         setText(R.id.quickSectionTitle, R.string.section_quick_actions);
         setText(R.id.lineupSectionTitle, R.string.section_lineup);
