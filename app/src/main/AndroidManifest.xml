@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
@@ -9,7 +14,8 @@
         android:name="com.chaquo.python.android.PyApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon_default"
-        android:label="ppSR 4.5.54"
+        android:label="ppSR 4.6.51 Server"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/icon_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PpSR">
@@ -19,15 +25,21 @@
             android:name=".PythonServerService"
             android:exported="false"
             android:foregroundServiceType="specialUse"
+            android:process=":server"
             android:stopWithTask="false">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Local game server on TCP and UDP ports" />
         </service>
+        <provider
+            android:name=".MiscFileProvider"
+            android:authorities="${applicationId}.misc-files"
+            android:exported="false"
+            android:grantUriPermissions="true" />
 
         <activity-alias android:name=".IconDefault" android:enabled="true"
             android:exported="true" android:icon="@drawable/icon_default"
-            android:label="ppSR 4.5.54" android:roundIcon="@drawable/icon_default"
+            android:label="ppSR 4.6.51 Server" android:roundIcon="@drawable/icon_default"
             android:targetActivity=".PasswordMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -36,7 +48,7 @@
         </activity-alias>
         <activity-alias android:name=".IconLight" android:enabled="false"
             android:exported="true" android:icon="@drawable/icon_round"
-            android:label="ppSR 4.5.54" android:roundIcon="@drawable/icon_round"
+            android:label="ppSR 4.6.51 Server" android:roundIcon="@drawable/icon_round"
             android:targetActivity=".PasswordMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -45,7 +57,7 @@
         </activity-alias>
         <activity-alias android:name=".IconRed" android:enabled="false"
             android:exported="true" android:icon="@drawable/icon_alt"
-            android:label="ppSR 4.5.54" android:roundIcon="@drawable/icon_alt"
+            android:label="ppSR 4.6.51 Server" android:roundIcon="@drawable/icon_alt"
             android:targetActivity=".PasswordMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

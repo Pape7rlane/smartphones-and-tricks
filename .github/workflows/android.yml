@@ -3,7 +3,7 @@ name: Build standalone Android APK
 on:
   workflow_dispatch:
   push:
-    branches: ["main", "master"]
+    branches: ["main", "master", "ppSR-4.6.51-测试UI"]
     paths:
       - "app/**"
       - "build/**"
@@ -29,8 +29,28 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
+      - name: Precompile large protobuf module
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile build/misc/classes_pb2.py
+          cp build/misc/__pycache__/classes_pb2.cpython-314.pyc build/misc/classes_pb2.pyc
+          rm build/misc/classes_pb2.py
+          test -s build/misc/classes_pb2.pyc
       - name: Build standalone APKs
         run: gradle --no-daemon assembleDebug assembleRelease
+      - name: Verify optimized protobuf payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          for apk in .gradle-build/app/outputs/apk/debug/*.apk .gradle-build/app/outputs/apk/release/*.apk; do
+            listing=$(unzip -Z1 "$apk")
+            grep -Fxq 'assets/server/misc/classes_pb2.pyc' <<< "$listing"
+            if grep -Fxq 'assets/server/misc/classes_pb2.py' <<< "$listing"; then
+              echo "Uncompiled classes_pb2.py found in $apk"
+              exit 1
+            fi
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: ppSR-Standalone-APKs

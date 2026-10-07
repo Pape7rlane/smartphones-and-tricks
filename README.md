@@ -1,4 +1,4 @@
-# ppSR 4.5.54 Android
+# ppSR 4.6.51 Android
 
 无需 Termux 的 ppSR Android 独立版。APK 内嵌 Python 3.14、原始服务端字节码和运行依赖，
 可直接在手机上启动 `127.0.0.1:21000` 服务。
@@ -13,9 +13,22 @@ APK 图标、全屏背景、服务器状态和半透明功能按钮。
 - 切换开拓者与三月七命途。
 - 按命途选择角色或加入整个命途。
 - 手动输入多个角色 ID、按序号删除、清空配队。
+- 内置 Escape Penacony 的 85 张地图数据，可按世界及战斗/探索类型切换出生地图；支持中英文地图名称。
+- 首次启动时按 Android 系统语言自动选择 CN/EN，之后可在 App 内手动切换并保存选择。
 - 在三套 `res` PNG 桌面图标之间动态切换。
-- 更新 APK 时保留密码和 `persistent.json` 配置。
+- 更新 APK 时保留 `persistent.json` 和 `freesr-data.json`；版本对应的 `hotfix.json` 会更新。
 - 在 App 内直接打开、编辑并保存 misc 目录中的 JSON 文件。
+- 在 App 内查看可关闭、可清空的实时服务器日志。
+
+## 存储目录与 SRTools
+
+- 首次启动会请求“所有文件访问”权限，并自动创建
+  `/storage/emulated/0/Download/ppSR`；整套服务端直接从该目录运行。
+- 启动服务器后，点击“打开 SRTools 完整配置”进入
+  `https://srtools.neonteam.dev/1001/detail`。
+- 在网站的 **Connect PS** 中保留默认 `RobinSR` 和 `http://localhost:21000`，先点
+  **Connect**，配置完成后点 **Sync**。网站会把角色、终结技能量、技能、光锥、遗器、
+  怪物和战斗配置完整写入 `Download/ppSR/misc/freesr-data.json`。
 
 ## 密码读取与更新逻辑
 
@@ -56,3 +69,6 @@ Android 版点击“启动服务器”会先显示密码框：首次必须输入
 工作流同时生成 debug 和使用 debug key 签名的 release APK。正式发布时应配置自己的 keystore。
 
 更详细的 Android 说明见 [README-Android.md](README-Android.md)。
+
+地图与坐标数据来源：[CAtlas0784/Escape-penacony](https://github.com/CAtlas0784/Escape-penacony)
+`main@9acf35a`。
