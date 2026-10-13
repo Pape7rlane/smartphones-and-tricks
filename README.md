@@ -71,4 +71,5 @@ Android 版点击“启动服务器”会先显示密码框：首次必须输入
 更详细的 Android 说明见 [README-Android.md](README-Android.md)。
 
 地图与坐标数据来源：[CAtlas0784/Escape-penacony](https://github.com/CAtlas0784/Escape-penacony)
-`main@9acf35a`。
+`main@3c8d5ab`。其中 2 张地图（`planarcadia` 的 Starforster、Moment of Joy）仅在 4.7 Beta
+测试端可用，在 4.6.x 正式端会卡在加载界面。

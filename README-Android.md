@@ -67,7 +67,9 @@ Flask、Requests、Protobuf 和 dataclasses-json，并通过 Android 前台服�
 
 地图及坐标数据来自
 [CAtlas0784/Escape-penacony](https://github.com/CAtlas0784/Escape-penacony)
-`main@9acf35a`，对应 ppSR 4.6.5X 数据结构。
+`main@3c8d5ab`，对应 ppSR 4.6.5X 数据结构。其中 `planarcadia` 的 Starforster 和
+Moment of Joy 两张地图标记为 `is_beta`，仅适用于 4.7 Beta 测试端；在 4.6.x 正式端选择
+这两张地图会卡在列车加载界面，其余 83 张不受影响。
 
 ## 从原地图仓库更新
 
