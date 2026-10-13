@@ -1,40 +1,30 @@
 package com.ppsr.control;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import java.util.Locale;
 
 final class UiLanguage {
-    private static final String PREFERENCES = "ui_preferences";
-    private static final String ENGLISH = "english";
-
     private UiLanguage() {}
 
+    // Chinese-only build: the interface, map names and character names are
+    // always Simplified Chinese, regardless of the system language. There is
+    // no English toggle.
     static boolean isEnglish(Context context) {
-        SharedPreferences preferences = context.getSharedPreferences(
-                PREFERENCES, Context.MODE_PRIVATE);
-        if (preferences.contains(ENGLISH)) return preferences.getBoolean(ENGLISH, false);
-
-        Locale systemLocale = context.getResources().getConfiguration().getLocales().get(0);
-        return !Locale.CHINESE.getLanguage().equals(systemLocale.getLanguage());
-    }
-
-    static void toggle(Context context) {
-        context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE).edit()
-                .putBoolean(ENGLISH, !isEnglish(context)).apply();
+        return false;
     }
 
     static String text(Context context, int resource, Object... arguments) {
-        Configuration configuration = new Configuration(context.getResources().getConfiguration());
-        configuration.setLocale(isEnglish(context) ? Locale.ENGLISH : Locale.SIMPLIFIED_CHINESE);
-        Context localized = context.createConfigurationContext(configuration);
-        return localized.getString(resource, arguments);
+        return localized(context).getString(resource, arguments);
     }
 
     static String[] array(Context context, int resource) {
+        return localized(context).getResources().getStringArray(resource);
+    }
+
+    private static Context localized(Context context) {
         Configuration configuration = new Configuration(context.getResources().getConfiguration());
-        configuration.setLocale(isEnglish(context) ? Locale.ENGLISH : Locale.SIMPLIFIED_CHINESE);
-        return context.createConfigurationContext(configuration).getResources().getStringArray(resource);
+        configuration.setLocale(Locale.SIMPLIFIED_CHINESE);
+        return context.createConfigurationContext(configuration);
     }
 }
