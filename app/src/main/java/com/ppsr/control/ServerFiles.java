@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 final class ServerFiles {
-    private static final String PAYLOAD_VERSION = "4.6.53-1";
+    private static final String PAYLOAD_VERSION = "4.6.53-2";
     private ServerFiles() {}
 
     static File directory(Context context) {
