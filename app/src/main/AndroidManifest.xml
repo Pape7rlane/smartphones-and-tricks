@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <application
-        android:name="com.chaquo.python.android.PyApplication"
+        android:name=".PpSRApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon_default"
         android:label="ppSR 4.6.53 服务器"

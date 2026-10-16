@@ -30,11 +30,36 @@ final class ServerFiles {
         String installed = marker.isFile()
                 ? new String(Files.readAllBytes(marker.toPath()), StandardCharsets.UTF_8) : "";
         if (!PAYLOAD_VERSION.equals(installed)) {
+            // Wipe the previous payload before copying the new one, so files that
+            // the new build no longer ships cannot linger on the device. User data
+            // (persistent.json, freesr-data.json) and the log directory survive.
+            clearStalePayload(destination, destination);
             copyTree(context, context.getAssets(), "server", destination, destination);
             Files.deleteIfExists(new File(destination, "misc/classes_pb2.py").toPath());
             writeFile(marker, PAYLOAD_VERSION.getBytes(StandardCharsets.UTF_8));
         }
         return destination;
+    }
+
+    /**
+     * Deletes every file under {@code dir} except user data and {@code logs/}, so
+     * a payload update leaves no stale files from the previous build behind.
+     * Directories that end up empty are removed too.
+     */
+    private static void clearStalePayload(File serverRoot, File dir) {
+        File[] children = dir.listFiles();
+        if (children == null) return;
+        for (File child : children) {
+            if (isUserData(serverRoot, child)) continue;
+            if (child.equals(new File(serverRoot, "logs"))) continue;
+            if (child.isDirectory()) {
+                clearStalePayload(serverRoot, child);
+                File[] remaining = child.listFiles();
+                if (remaining != null && remaining.length == 0) child.delete();
+            } else {
+                child.delete();
+            }
+        }
     }
 
     private static void copyTree(Context context, AssetManager assets, String assetPath, File target,

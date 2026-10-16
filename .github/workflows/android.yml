@@ -3,7 +3,7 @@ name: Build standalone Android APK
 on:
   workflow_dispatch:
   push:
-    branches: ["main", "master", "ppSR-4.6.51-测试UI", "ppSR4.6.51-cn", "protobuf-native-test"]
+    branches: ["main", "master", "ppSR-4.6.51-测试UI", "ppSR4.6.51-cn", "protobuf-native-test", "termux-fast-startup"]
     paths:
       - "app/**"
       - "build/**"
