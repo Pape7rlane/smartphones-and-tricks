@@ -82,6 +82,95 @@ final class ConfigStore {
         write(context, root);
     }
 
+    // ---- 奇缘星魂（额外星魂） ----------------------------------------------
+
+    /** 奇缘星魂条目：对应 persistent.json 里的 avatar.ex_rank[]。 */
+    static final class ExRank {
+        final String name;
+        final int avatarId;
+        final boolean active;
+
+        ExRank(String name, int avatarId, boolean active) {
+            this.name = name;
+            this.avatarId = avatarId;
+            this.active = active;
+        }
+    }
+
+    // 服务器只认这 3 个角色的奇缘星魂（见 misc/resources/AvatarExRankConfig.json）。
+    private static final String[] DEFAULT_EX_RANK_NAMES = {"JingYuan", "DanHeng IL", "Acheron"};
+    private static final int[] DEFAULT_EX_RANK_IDS = {1204, 1213, 1308};
+
+    /**
+     * 读取 avatar.ex_rank；若配置里还没有这一段，就写入默认的 3 个角色（默认开启）
+     * 再返回，这样老设备升级后也能直接用奇缘星魂功能。
+     */
+    static synchronized List<ExRank> exRank(Context context) throws Exception {
+        JSONObject root = read(context);
+        JSONObject avatar = root.getJSONObject("avatar");
+        JSONArray array = avatar.optJSONArray("ex_rank");
+        if (array == null) {
+            array = defaultExRank();
+            avatar.put("ex_rank", array);
+            write(context, root);
+        }
+        List<ExRank> result = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject item = array.optJSONObject(i);
+            if (item == null) continue;
+            result.add(new ExRank(item.optString("name", ""), item.optInt("avatar_id"),
+                    item.optBoolean("active", true)));
+        }
+        return result;
+    }
+
+    /** 打开/关闭某个角色的奇缘星魂；配置里没有该角色时自动补一条。 */
+    static synchronized void setExRankActive(Context context, int avatarId, boolean active)
+            throws Exception {
+        JSONObject root = read(context);
+        JSONObject avatar = root.getJSONObject("avatar");
+        JSONArray array = avatar.optJSONArray("ex_rank");
+        if (array == null) {
+            array = defaultExRank();
+            avatar.put("ex_rank", array);
+        }
+        JSONObject target = null;
+        for (int i = 0; i < array.length(); i++) {
+            JSONObject item = array.optJSONObject(i);
+            if (item != null && item.optInt("avatar_id") == avatarId) {
+                target = item;
+                break;
+            }
+        }
+        if (target == null) {
+            target = new JSONObject();
+            target.put("name", defaultExRankName(avatarId));
+            target.put("avatar_id", avatarId);
+            array.put(target);
+        }
+        target.put("active", active);
+        write(context, root);
+    }
+
+    private static JSONArray defaultExRank() throws JSONException {
+        JSONArray array = new JSONArray();
+        for (int i = 0; i < DEFAULT_EX_RANK_IDS.length; i++) {
+            JSONObject item = new JSONObject();
+            item.put("name", DEFAULT_EX_RANK_NAMES[i]);
+            item.put("avatar_id", DEFAULT_EX_RANK_IDS[i]);
+            item.put("active", true);
+            array.put(item);
+        }
+        return array;
+    }
+
+    private static String defaultExRankName(int avatarId) {
+        for (int i = 0; i < DEFAULT_EX_RANK_IDS.length; i++) {
+            if (DEFAULT_EX_RANK_IDS[i] == avatarId) return DEFAULT_EX_RANK_NAMES[i];
+        }
+        return String.valueOf(avatarId);
+    }
+
     private static JSONObject read(Context context) throws IOException, JSONException {
         File file = persistentFile(context);
         JSONObject object = new JSONObject(new String(Files.readAllBytes(file.toPath()), StandardCharsets.UTF_8));

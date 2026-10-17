@@ -19,7 +19,9 @@ import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
@@ -42,6 +44,7 @@ public class MainActivity extends Activity {
     private TextView serverState;
     private TextView startButton;
     private TextView lineupValue;
+    private LinearLayout exRankContainer;
     private ServerUiState serverUiState = ServerUiState.STOPPED;
     private boolean receiverRegistered;
     private boolean storageInitialized;
@@ -100,6 +103,7 @@ public class MainActivity extends Activity {
         serverState = findViewById(R.id.serverState);
         startButton = findViewById(R.id.startButton);
         lineupValue = findViewById(R.id.lineupValue);
+        exRankContainer = findViewById(R.id.exRankContainer);
         startButton.setOnClickListener(v -> startServer());
         findViewById(R.id.stopButton).setOnClickListener(v -> stopServer());
         findViewById(R.id.tbButton).setOnClickListener(v -> chooseTrailblazer());
@@ -129,6 +133,7 @@ public class MainActivity extends Activity {
         startService(new Intent(this, PythonServerService.class)
                 .setAction(PythonServerService.ACTION_STATUS));
         refreshLineup();
+        refreshExRank();
     }
 
     @Override protected void onResume() {
@@ -224,6 +229,8 @@ public class MainActivity extends Activity {
         setText(R.id.serverSectionTitle, R.string.section_server);
         setText(R.id.quickSectionTitle, R.string.section_quick_actions);
         setText(R.id.lineupSectionTitle, R.string.section_lineup);
+        setText(R.id.exRankSectionTitle, R.string.section_ex_rank);
+        setText(R.id.exRankHint, R.string.ex_rank_hint);
         setText(R.id.toolsSectionTitle, R.string.section_tools);
         setText(R.id.stopButton, R.string.stop_server);
         setText(R.id.tbButton, R.string.change_trailblazer_path);
@@ -242,6 +249,7 @@ public class MainActivity extends Activity {
         setText(R.id.neonteamSrtoolsButton, R.string.open_neonteam_srtools);
         renderServerState();
         refreshLineup();
+        refreshExRank();
     }
 
     private void setText(int viewId, int textId) {
@@ -444,6 +452,64 @@ public class MainActivity extends Activity {
         } catch (Exception error) {
             lineupValue.setText(ui(R.string.lineup_read_failed, error.getMessage()));
         }
+    }
+
+    /** 重建“奇缘星魂”逐行开关：每个角色一行（名字 + 开关），切换立即写回配置。 */
+    private void refreshExRank() {
+        if (exRankContainer == null) return;
+        exRankContainer.removeAllViews();
+        List<ConfigStore.ExRank> entries;
+        try {
+            entries = ConfigStore.exRank(this);
+        } catch (Exception error) {
+            exRankContainer.addView(exRankRow(ui(R.string.ex_rank_read_failed, error.getMessage()), null));
+            return;
+        }
+        for (ConfigStore.ExRank entry : entries) {
+            exRankContainer.addView(exRankRow(exRankName(entry), entry));
+        }
+    }
+
+    /** 显示名用 App 内置的角色名（纯中文），取不到再退回配置里的名字。 */
+    private String exRankName(ConfigStore.ExRank entry) {
+        String name = CharacterData.nameOf(entry.avatarId, UiLanguage.isEnglish(this));
+        return name == null || name.isEmpty() ? entry.name : name;
+    }
+
+    /** 生成一行：左侧角色名，右侧开关；开关一拨就写入 persistent.json。 */
+    private View exRankRow(String label, ConfigStore.ExRank entry) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(6), 0, dp(6));
+
+        TextView name = new TextView(this);
+        name.setText(label);
+        name.setTextSize(15f);
+        name.setTextColor(getColor(R.color.text_primary));
+        name.setLayoutParams(new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(name);
+
+        if (entry != null) {
+            Switch toggle = new Switch(this);
+            // 先 setChecked 再挂监听，避免初始化时误触发一次写入。
+            toggle.setChecked(entry.active);
+            toggle.setOnCheckedChangeListener((button, checked) -> {
+                try {
+                    ConfigStore.setExRankActive(this, entry.avatarId, checked);
+                    toast(ui(checked ? R.string.ex_rank_saved_on : R.string.ex_rank_saved_off, label));
+                } catch (Exception error) {
+                    showError(error);
+                }
+            });
+            row.addView(toggle);
+        }
+        return row;
+    }
+
+    private int dp(int value) {
+        return Math.round(getResources().getDisplayMetrics().density * value);
     }
 
     private void chooseIcon() {

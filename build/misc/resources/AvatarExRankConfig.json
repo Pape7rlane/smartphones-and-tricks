@@ -1,0 +1,138 @@
+[
+  {
+    "ExRankID": 120401,
+    "AvatarID": 1204,
+    "OIBKPJEGPOK": {
+      "Hash": 1475409642
+    },
+    "OENAMINOLLF": "AvatarExRankName_120401",
+    "NMAHGFAPENI": "AvatarExRankDesc_120401",
+    "AGOHEFBOPNO": {
+      "Hash": 1323314287,
+      "Hash64": 15983939177738998168
+    },
+    "BDECHFIJBFA": [],
+    "OLOIFNNLKJP": "SpriteOutput/SkillIcons/Avatar/1204/SkillIcon_1204_ExRank01.png",
+    "AIAFHMFPFMN": "UI/UI3D/Rank/_dependencies/Textures/1204/1204_ExRank_1.png",
+    "DPPHHNMHPAK": "UI/Avatar/Rank/DLC/AvatarSpRank3DPanel_1204.prefab",
+    "NNFEGHLLEPH": [
+      "Avatar_JingYuan_00_ExRank01"
+    ],
+    "NNACKOBKFGE": [
+      {
+        "Value": 1.0
+      },
+      {
+        "Value": 2.0
+      },
+      {
+        "Value": 6.0
+      },
+      {
+        "Value": 12.0
+      },
+      {
+        "Value": 4.0
+      },
+      {
+        "Value": 20.0
+      }
+    ],
+    "ODEKADIBFAO": 15010,
+    "PKBNJLOLPBM": {
+      "ItemID": 131204,
+      "ItemNum": 1
+    }
+  },
+  {
+    "ExRankID": 121301,
+    "AvatarID": 1213,
+    "OIBKPJEGPOK": {
+      "Hash": 1475409642
+    },
+    "OENAMINOLLF": "AvatarExRankName_121301",
+    "NMAHGFAPENI": "AvatarExRankDesc_121301",
+    "AGOHEFBOPNO": {
+      "Hash": -408639189,
+      "Hash64": 9868503137584243444
+    },
+    "BDECHFIJBFA": [
+      10000004
+    ],
+    "OLOIFNNLKJP": "SpriteOutput/SkillIcons/Avatar/1213/SkillIcon_1213_ExRank01.png",
+    "AIAFHMFPFMN": "UI/UI3D/Rank/_dependencies/Textures/1213/1213_ExRank_1.png",
+    "DPPHHNMHPAK": "UI/Avatar/Rank/DLC/AvatarSpRank3DPanel_1213.prefab",
+    "NNFEGHLLEPH": [
+      "Avatar_DanHengIL_00_ExRank01"
+    ],
+    "NNACKOBKFGE": [
+      {
+        "Value": 5.0
+      },
+      {
+        "Value": 4.0
+      },
+      {
+        "Value": 1.0
+      },
+      {
+        "Value": 2.0
+      },
+      {
+        "Value": 1.0
+      },
+      {
+        "Value": 3.0
+      }
+    ],
+    "NJNDLOFDBHB": 10,
+    "ODEKADIBFAO": 15011,
+    "PKBNJLOLPBM": {
+      "ItemID": 131213,
+      "ItemNum": 1
+    }
+  },
+  {
+    "ExRankID": 130801,
+    "AvatarID": 1308,
+    "OIBKPJEGPOK": {
+      "Hash": 1475409642
+    },
+    "OENAMINOLLF": "AvatarExRankName_130801",
+    "NMAHGFAPENI": "AvatarExRankDesc_130801",
+    "AGOHEFBOPNO": {
+      "Hash": -408639189,
+      "Hash64": 9868503137584243444
+    },
+    "BDECHFIJBFA": [
+      10000005,
+      10000004
+    ],
+    "OLOIFNNLKJP": "SpriteOutput/SkillIcons/Avatar/1308/SkillIcon_1308_ExRank01.png",
+    "AIAFHMFPFMN": "UI/UI3D/Rank/_dependencies/Textures/1308/1308_ExRank_1.png",
+    "DPPHHNMHPAK": "UI/Avatar/Rank/DLC/AvatarSpRank3DPanel_1308.prefab",
+    "NNFEGHLLEPH": [
+      "Avatar_Acheron_00_ExRank01"
+    ],
+    "NNACKOBKFGE": [
+      {
+        "Value": 9.0
+      },
+      {
+        "Value": 1.0
+      },
+      {
+        "Value": 1.0
+      },
+      {
+        "Value": 1.0
+      }
+    ],
+    "NJNDLOFDBHB": 10,
+    "ODEKADIBFAO": 15009,
+    "PKBNJLOLPBM": {
+      "ItemID": 131308,
+      "ItemNum": 1
+    }
+  }
+]
