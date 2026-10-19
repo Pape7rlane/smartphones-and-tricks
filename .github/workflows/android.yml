@@ -117,7 +117,8 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
           block=$(grep -A 25 'What went wrong' "$log" | head -30 | tr '\n' ' ')
           [ -n "$block" ] || block=$(tail -20 "$log" | tr '\n' ' ')
-          echo "::error title=Gradle build failure::${block:0:3000}"
+          errs=$(grep -E '\.java:[0-9]+: (error|错误)' "$log" | head -20 | tr '\n' ' ')
+          echo "::error title=Gradle build failure::${block:0:2000} ${errs:0:4000}"
       - name: Verify optimized protobuf payload
         shell: bash
         run: |
