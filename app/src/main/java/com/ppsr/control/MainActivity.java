@@ -18,6 +18,7 @@ import android.os.Looper;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -43,6 +44,8 @@ public class MainActivity extends Activity {
     private static final long SERVER_START_TIMEOUT_MS = 305_000;
     private static final String FIREFLY_SRTOOLS_URL = "https://srtools.punklorde.org/";
     private static final String NEONTEAM_SRTOOLS_URL = "https://srtools.neonteam.dev/1001/detail";
+    private static final String RELEASE_PREFS = "release_info";
+    private static final String HIDDEN_ANNOUNCEMENT_ID = "hidden_announcement_id";
     private TextView serverState;
     private TextView startButton;
     private TextView lineupValue;
@@ -52,6 +55,17 @@ public class MainActivity extends Activity {
     private boolean storageInitialized;
     private boolean storageInitializationInProgress;
     private boolean notificationPermissionRequested;
+    private boolean activityStarted;
+    private ReleaseInfo releaseInfo;
+    private AlertDialog announcementDialog;
+    private AlertDialog forcedUpdateDialog;
+    private String shownAnnouncementId;
+    private long installedVersionCode;
+    private final ExecutorService releaseExecutor = Executors.newSingleThreadExecutor(task -> {
+        Thread thread = new Thread(task, "ppsr-release-check");
+        thread.setDaemon(true);
+        return thread;
+    });
     private final ExecutorService startupExecutor = Executors.newSingleThreadExecutor(task -> {
         Thread thread = new Thread(task, "ppsr-ui-startup");
         thread.setDaemon(true);
@@ -59,7 +73,12 @@ public class MainActivity extends Activity {
     });
     private final Handler startupHandler = new Handler(Looper.getMainLooper());
     private final Runnable delayedStoragePermission = () -> {
-        if (isFinishing() || isDestroyed() || StorageAccess.isGranted(this)) return;
+        if (isFinishing() || isDestroyed()) return;
+        if (isReleaseDialogShowing() || requiresUpdate(releaseInfo)) {
+            startupHandler.postDelayed(delayedStoragePermission, 500);
+            return;
+        }
+        if (StorageAccess.isGranted(this)) return;
         StorageAccess.request(this);
         toast(ui(R.string.storage_permission));
     };
@@ -141,37 +160,175 @@ public class MainActivity extends Activity {
 
     @Override protected void onStart() {
         super.onStart();
+        activityStarted = true;
         IntentFilter filter = new IntentFilter(PythonServerService.ACTION_STATE);
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(stateReceiver, filter, RECEIVER_NOT_EXPORTED);
         else registerReceiver(stateReceiver, filter);
         receiverRegistered = true;
         startService(new Intent(this, PythonServerService.class)
                 .setAction(PythonServerService.ACTION_STATUS));
+        checkReleaseInfo();
         refreshConfiguration();
     }
 
     @Override protected void onResume() {
         super.onResume();
+        showForcedUpdateIfRequired();
         if (StorageAccess.isGranted(this)) {
             refreshConfiguration();
-            if (!notificationPermissionRequested) {
-                notificationPermissionRequested = true;
-                requestNotificationPermission();
-            }
+            requestNotificationPermissionWhenReady();
         }
     }
 
     @Override protected void onStop() {
+        activityStarted = false;
         if (receiverRegistered) { unregisterReceiver(stateReceiver); receiverRegistered = false; }
+        shownAnnouncementId = null;
         super.onStop();
     }
 
     @Override protected void onDestroy() {
         startupHandler.removeCallbacks(delayedStoragePermission);
         startupExecutor.shutdown();
+        releaseExecutor.shutdownNow();
         closeLiveLog();
         serverStateHandler.removeCallbacks(serverStartTimeout);
         super.onDestroy();
+    }
+
+    private void checkReleaseInfo() {
+        try {
+            android.content.pm.PackageInfo packageInfo = getPackageManager()
+                    .getPackageInfo(getPackageName(), 0);
+            installedVersionCode = Build.VERSION.SDK_INT >= 28
+                    ? packageInfo.getLongVersionCode() : packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException ignored) {
+            installedVersionCode = 0;
+        }
+
+        applyReleaseInfo(ReleaseInfo.loadCachedOrBundled(this));
+        Context appContext = getApplicationContext();
+        releaseExecutor.execute(() -> {
+            try {
+                ReleaseInfo remote = ReleaseInfo.fetchAndCache(appContext);
+                runOnUiThread(() -> {
+                    if (activityStarted && !isFinishing() && !isDestroyed()) applyReleaseInfo(remote);
+                });
+            } catch (Exception ignored) {
+                // Keep using the cached or bundled notice when the network is unavailable.
+            }
+        });
+    }
+
+    private void applyReleaseInfo(ReleaseInfo info) {
+        releaseInfo = info;
+        if (requiresUpdate(info)) {
+            if (announcementDialog != null && announcementDialog.isShowing()) {
+                announcementDialog.dismiss();
+            }
+            shownAnnouncementId = null;
+            showForcedUpdateIfRequired();
+            return;
+        }
+        if (forcedUpdateDialog != null && forcedUpdateDialog.isShowing()) {
+            forcedUpdateDialog.dismiss();
+        }
+        showAnnouncementIfRequired(info);
+    }
+
+    private boolean requiresUpdate(ReleaseInfo info) {
+        return info != null && info.latestVersionCode > installedVersionCode
+                && !info.downloadUrl.isEmpty();
+    }
+
+    private boolean isReleaseDialogShowing() {
+        return (announcementDialog != null && announcementDialog.isShowing())
+                || (forcedUpdateDialog != null && forcedUpdateDialog.isShowing());
+    }
+
+    private void showAnnouncementIfRequired(ReleaseInfo info) {
+        if (isFinishing() || isDestroyed() || info == null
+                || info.announcementId.isEmpty() || info.announcementTitle.isEmpty()
+                || info.announcementBody.isEmpty() || requiresUpdate(info)) return;
+        String hiddenId = getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE)
+                .getString(HIDDEN_ANNOUNCEMENT_ID, "");
+        if (info.announcementId.equals(hiddenId)
+                || info.announcementId.equals(shownAnnouncementId)) return;
+        if (announcementDialog != null && announcementDialog.isShowing()) {
+            announcementDialog.dismiss();
+        }
+
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        int padding = Math.round(20 * getResources().getDisplayMetrics().density);
+        ScrollView scroll = new ScrollView(this);
+        TextView body = new TextView(this);
+        body.setText(info.announcementBody);
+        body.setTextSize(16);
+        body.setPadding(padding, padding, padding, padding);
+        scroll.addView(body);
+        content.addView(scroll, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                Math.round(300 * getResources().getDisplayMetrics().density)));
+        CheckBox hide = new CheckBox(this);
+        hide.setText("不再显示此公告");
+        hide.setPadding(padding, 0, padding, 0);
+        content.addView(hide);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(info.announcementTitle)
+                .setView(content)
+                .setPositiveButton("关闭", (d, which) -> {
+                    if (hide.isChecked()) {
+                        getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE).edit()
+                                .putString(HIDDEN_ANNOUNCEMENT_ID, info.announcementId).apply();
+                    }
+                })
+                .create();
+        announcementDialog = dialog;
+        shownAnnouncementId = info.announcementId;
+        dialog.setOnDismissListener(ignored -> {
+            if (announcementDialog == dialog) announcementDialog = null;
+            startupHandler.postDelayed(this::requestNotificationPermissionWhenReady, 250);
+        });
+        dialog.show();
+    }
+
+    private void requestNotificationPermissionWhenReady() {
+        if (notificationPermissionRequested || !StorageAccess.isGranted(this)
+                || requiresUpdate(releaseInfo) || isReleaseDialogShowing()
+                || isFinishing() || isDestroyed()) return;
+        notificationPermissionRequested = true;
+        requestNotificationPermission();
+    }
+
+    private void showForcedUpdateIfRequired() {
+        ReleaseInfo info = releaseInfo;
+        if (isFinishing() || isDestroyed() || !requiresUpdate(info)
+                || (forcedUpdateDialog != null && forcedUpdateDialog.isShowing())) return;
+        String version = info.latestVersionName.isEmpty()
+                ? String.valueOf(info.latestVersionCode) : info.latestVersionName;
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("需要更新")
+                .setMessage("发现 ppSR " + version + "。请先更新到最新版本后再继续使用。")
+                .setPositiveButton("前往夸克网盘", null)
+                .create();
+        forcedUpdateDialog = dialog;
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnDismissListener(ignored -> {
+            if (forcedUpdateDialog == dialog) forcedUpdateDialog = null;
+        });
+        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(view -> {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(info.downloadUrl)));
+                        dialog.dismiss();
+                    } catch (Exception error) {
+                        toast("无法打开夸克更新链接，请检查设备上的浏览器或夸克网盘。");
+                    }
+                }));
+        dialog.show();
     }
 
     private void startServer() {

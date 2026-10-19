@@ -1,0 +1,8 @@
+{
+  "latest_version_code": 22,
+  "latest_version_name": "4.6.53PS",
+  "download_url": "https://pan.quark.cn/s/e99add200b01",
+  "announcement_id": "ppsr-4.6.53ps-20261020",
+  "announcement_title": "ppSR 4.6.53PS 更新公告",
+  "announcement_body": "更新内容（Changes）\n\n修复了没有 Ex Eidolon（额外星魂）的角色，其星魂界面中的星魂选项无法点击的问题。\n\n新增对 Firefly SRTools 同步功能的兼容支持，可用于更改 Ex Eidolon（额外星魂）。\n\n现在，你可以在 Firefly SRTools 中修改角色的 Ex Eidolon 配置，然后进行同步，修改结果就会在游戏中生效。"
+}

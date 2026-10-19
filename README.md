@@ -1,4 +1,4 @@
-# ppSR 4.6.53 Android
+# ppSR 4.6.53PS Android
 
 无需 Termux 的 ppSR Android 独立版。APK 内嵌 Python 3.14、原始服务端字节码和运行依赖，
 可直接在手机上启动 `127.0.0.1:21000` 服务。
@@ -58,6 +58,17 @@ Android 版点击“启动服务器”会先显示密码框：首次必须输入
 - `background.webp`：启动界面背景。
 
 替换同名 WebP 背景或 PNG 图标后重新构建即可，不需要修改 Java 代码。
+
+## 公告与强制更新
+
+仓库根目录的 [`update.json`](update.json) 是公告和更新配置，可以直接自定义：
+
+- `announcement_title`、`announcement_body`：公告标题和正文。
+- `announcement_id`：公告编号；换公告时必须改这个值，用户勾选“不再显示此公告”后，新编号会再次弹出。
+- `latest_version_code`：必须与 `app/build.gradle` 的 `versionCode` 一致。已安装旧版本发现更大的编号时，会强制显示更新弹窗。
+- `download_url`：夸克网盘 APK 链接，例如 `https://pan.quark.cn/s/e99add200b01`。
+
+APK 每次进入时读取最新配置；网络不可用时使用上次缓存或 APK 内置配置。普通公告可以勾选“不再显示此公告”，强制更新弹窗不能跳过。纯公告调整只需修改并推送根目录 `update.json`，无需重新构建。发布新 APK 时递增 `app/build.gradle` 的 `versionCode` 并云端构建；APK 上传到夸克后，再把 `latest_version_code` 和 `download_url` 更新到新版本。已有版本从此 APK 开始支持远程强制更新；更早的 APK 需要先手动安装一次。
 
 ## GitHub Actions 云编译
 

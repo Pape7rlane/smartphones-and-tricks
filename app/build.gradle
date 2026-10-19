@@ -11,6 +11,12 @@ def syncServerAssets = tasks.register('syncServerAssets', Sync) {
     into(serverAssets.map { it.dir('server') })
 }
 
+def releaseInfoAssets = layout.buildDirectory.dir('generated/releaseInfoAssets')
+def syncReleaseInfo = tasks.register('syncReleaseInfo', Sync) {
+    from(rootProject.file('update.json'))
+    into(releaseInfoAssets)
+}
+
 android {
     namespace 'com.ppsr.control'
     compileSdk 35
@@ -18,11 +24,11 @@ android {
         applicationId 'com.ppsr.control'
         minSdk 26
         targetSdk 35
-        versionCode 21
-        versionName '4.6.53'
+        versionCode 22
+        versionName '4.6.53PS'
         ndk { abiFilters 'arm64-v8a' }
     }
-    sourceSets { main { assets.srcDir(serverAssets) } }
+    sourceSets { main { assets.srcDir(serverAssets); assets.srcDir(releaseInfoAssets) } }
     buildTypes {
         release {
             minifyEnabled false
@@ -82,4 +88,4 @@ chaquopy {
     }
 }
 
-tasks.named('preBuild').configure { dependsOn(syncServerAssets) }
+tasks.named('preBuild').configure { dependsOn(syncServerAssets, syncReleaseInfo) }
