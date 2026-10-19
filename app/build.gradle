@@ -89,3 +89,10 @@ chaquopy {
 }
 
 tasks.named('preBuild').configure { dependsOn(syncServerAssets, syncReleaseInfo) }
+
+// merge*Assets 把 generated/releaseInfoAssets 当作输入，而它正是 syncReleaseInfo
+// 的输出目录；Gradle 8 对"读取别的任务输出却没有依赖边"直接判失败
+// (A problem was found with the configuration of task ':app:mergeDebugAssets')。
+// 显式补上依赖。
+tasks.matching { it.name.startsWith('merge') && it.name.endsWith('Assets') }
+        .configureEach { dependsOn(syncReleaseInfo) }
