@@ -75,7 +75,7 @@ public class MainActivity extends Activity {
     private final Runnable delayedStoragePermission = () -> {
         if (isFinishing() || isDestroyed()) return;
         if (isReleaseDialogShowing() || requiresUpdate(releaseInfo)) {
-            startupHandler.postDelayed(delayedStoragePermission, 500);
+            scheduleStoragePermissionRetry();
             return;
         }
         if (StorageAccess.isGranted(this)) return;
@@ -194,6 +194,10 @@ public class MainActivity extends Activity {
         closeLiveLog();
         serverStateHandler.removeCallbacks(serverStartTimeout);
         super.onDestroy();
+    }
+
+    private void scheduleStoragePermissionRetry() {
+        startupHandler.postDelayed(delayedStoragePermission, 500);
     }
 
     private void checkReleaseInfo() {

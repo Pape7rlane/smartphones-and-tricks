@@ -98,27 +98,7 @@ jobs:
           rm build/misc/classes_pb2.py
           test -s build/misc/classes_pb2.pyc
       - name: Build standalone APKs
-        shell: bash
-        run: |
-          set -o pipefail
-          gradle --no-daemon assembleDebug assembleRelease 2>&1 | tee "$RUNNER_TEMP/gradle-build.log"
-      - name: Surface Gradle failure
-        if: failure()
-        shell: bash
-        run: |
-          log="$RUNNER_TEMP/gradle-build.log"
-          [ -f "$log" ] || exit 0
-          {
-            echo '## Gradle failure'
-            echo
-            echo '```'
-            grep -A 30 'What went wrong' "$log" | head -40 || tail -40 "$log"
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-          block=$(grep -A 25 'What went wrong' "$log" | head -30 | tr '\n' ' ')
-          [ -n "$block" ] || block=$(tail -20 "$log" | tr '\n' ' ')
-          errs=$(grep -E '\.java:[0-9]+: (error|错误)' "$log" | head -20 | tr '\n' ' ')
-          echo "::error title=Gradle build failure::${block:0:2000} ${errs:0:4000}"
+        run: gradle --no-daemon assembleDebug assembleRelease
       - name: Verify optimized protobuf payload
         shell: bash
         run: |
