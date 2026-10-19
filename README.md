@@ -55,9 +55,9 @@ Android 版点击“启动服务器”会先显示密码框：首次必须输入
 - `icon_default.png`：默认 APK 图标。
 - `icon_round.png`：圆形图标选项。
 - `icon_alt.png`：备用图标选项。
-- `background.jpg`：启动界面背景。
+- `background.webp`：启动界面背景。
 
-替换同名 PNG/JPG 后重新构建即可，不需要修改 Java 代码。
+替换同名 WebP 背景或 PNG 图标后重新构建即可，不需要修改 Java 代码。
 
 ## GitHub Actions 云编译
 

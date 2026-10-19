@@ -61,6 +61,7 @@
     <string name="cancel">取消</string>
     <string name="back">返回</string>
     <string name="storage_permission">请允许访问所有文件，用于创建 Download/ppSR</string>
+    <string name="storage_initializing">正在准备服务文件，请稍后再启动</string>
     <string name="trailblazer_path">开拓者命途</string>
     <string name="march_path">三月七命途</string>
     <string name="switched_path">已切换到：%1$s，重启服务后生效</string>

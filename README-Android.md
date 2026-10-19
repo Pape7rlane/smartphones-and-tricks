@@ -120,7 +120,7 @@ Manifest 和图标切换功能直接读取 `res/drawable-nodpi` 中的图片：
 - `icon_default.png`：默认桌面图标。
 - `icon_round.png`：圆形图标选项。
 - `icon_alt.png`：备用图标选项。
-- `background.jpg`：启动界面全屏背景。
+- `background.webp`：启动界面全屏背景。
 
-替换同名 PNG/JPG 后重新云编译，不需要修改 Java。App 内可在三套已打包 PNG 之间切换。
+替换同名 WebP 背景或 PNG 图标后重新云编译，不需要修改 Java。App 内可在三套已打包 PNG 之间切换。
 原 `run.sh` 继续保留，但 APK 不会执行它。

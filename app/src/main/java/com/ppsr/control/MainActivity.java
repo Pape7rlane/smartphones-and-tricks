@@ -31,6 +31,8 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.json.JSONTokener;
 
@@ -48,7 +50,19 @@ public class MainActivity extends Activity {
     private ServerUiState serverUiState = ServerUiState.STOPPED;
     private boolean receiverRegistered;
     private boolean storageInitialized;
+    private boolean storageInitializationInProgress;
     private boolean notificationPermissionRequested;
+    private final ExecutorService startupExecutor = Executors.newSingleThreadExecutor(task -> {
+        Thread thread = new Thread(task, "ppsr-ui-startup");
+        thread.setDaemon(true);
+        return thread;
+    });
+    private final Handler startupHandler = new Handler(Looper.getMainLooper());
+    private final Runnable delayedStoragePermission = () -> {
+        if (isFinishing() || isDestroyed() || StorageAccess.isGranted(this)) return;
+        StorageAccess.request(this);
+        toast(ui(R.string.storage_permission));
+    };
     private final Handler liveLogHandler = new Handler(Looper.getMainLooper());
     private final Handler serverStateHandler = new Handler(Looper.getMainLooper());
     private final Runnable serverStartTimeout = () -> {
@@ -96,7 +110,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         bindViews();
         applyLanguage();
-        ensureStorageAccess();
+        // Draw the home screen before opening all-files settings on first launch.
+        startupHandler.postDelayed(delayedStoragePermission, 250);
     }
 
     private void bindViews() {
@@ -132,14 +147,13 @@ public class MainActivity extends Activity {
         receiverRegistered = true;
         startService(new Intent(this, PythonServerService.class)
                 .setAction(PythonServerService.ACTION_STATUS));
-        refreshLineup();
-        refreshExRank();
+        refreshConfiguration();
     }
 
     @Override protected void onResume() {
         super.onResume();
         if (StorageAccess.isGranted(this)) {
-            if (!storageInitialized) initializeStorage();
+            refreshConfiguration();
             if (!notificationPermissionRequested) {
                 notificationPermissionRequested = true;
                 requestNotificationPermission();
@@ -153,6 +167,8 @@ public class MainActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
+        startupHandler.removeCallbacks(delayedStoragePermission);
+        startupExecutor.shutdown();
         closeLiveLog();
         serverStateHandler.removeCallbacks(serverStartTimeout);
         super.onDestroy();
@@ -167,8 +183,10 @@ public class MainActivity extends Activity {
 
     protected boolean ensureStorageAccess() {
         if (StorageAccess.isGranted(this)) {
-            if (!storageInitialized) initializeStorage();
-            return storageInitialized;
+            if (storageInitialized) return true;
+            initializeStorage();
+            toast(ui(R.string.storage_initializing));
+            return false;
         }
         StorageAccess.request(this);
         toast(ui(R.string.storage_permission));
@@ -176,14 +194,37 @@ public class MainActivity extends Activity {
     }
 
     private void initializeStorage() {
-        try {
-            ServerFiles.install(this);
-            storageInitialized = true;
-            refreshLineup();
-        } catch (Exception error) {
-            storageInitialized = false;
-            showError(error);
+        if (storageInitialized || storageInitializationInProgress
+                || !StorageAccess.isGranted(this)) return;
+        storageInitializationInProgress = true;
+        Context appContext = getApplicationContext();
+        startupExecutor.execute(() -> {
+            try {
+                ServerFiles.install(appContext);
+                runOnUiThread(() -> {
+                    storageInitializationInProgress = false;
+                    storageInitialized = true;
+                    refreshLineup();
+                    refreshExRank();
+                });
+            } catch (Exception error) {
+                runOnUiThread(() -> {
+                    storageInitializationInProgress = false;
+                    storageInitialized = false;
+                    if (!isFinishing() && !isDestroyed()) showError(error);
+                });
+            }
+        });
+    }
+
+    private void refreshConfiguration() {
+        if (!StorageAccess.isGranted(this)) return;
+        if (!storageInitialized) {
+            initializeStorage();
+            return;
         }
+        refreshLineup();
+        refreshExRank();
     }
 
     private void openWebsite(String url) {
@@ -248,8 +289,6 @@ public class MainActivity extends Activity {
         setText(R.id.fireflySrtoolsButton, R.string.open_firefly_srtools);
         setText(R.id.neonteamSrtoolsButton, R.string.open_neonteam_srtools);
         renderServerState();
-        refreshLineup();
-        refreshExRank();
     }
 
     private void setText(int viewId, int textId) {
@@ -261,11 +300,13 @@ public class MainActivity extends Activity {
     }
 
     private void chooseTrailblazer() {
+        if (!ensureStorageAccess()) return;
         chooseConfig(ui(R.string.trailblazer_path), UiLanguage.array(this, R.array.trailblazer_path_labels),
                 new String[]{"Destruction", "Preservation", "Harmony", "Remembrance", "Elation"}, "tb_path");
     }
 
     private void chooseMarch() {
+        if (!ensureStorageAccess()) return;
         chooseConfig(ui(R.string.march_path), UiLanguage.array(this, R.array.march_path_labels),
                 new String[]{"Preservation", "Hunt"}, "march_path");
     }
@@ -280,6 +321,7 @@ public class MainActivity extends Activity {
     }
 
     private void choosePath(boolean wholePath) {
+        if (!ensureStorageAccess()) return;
         String[] pathLabels = UiLanguage.array(this, R.array.path_labels);
         new AlertDialog.Builder(this).setTitle(ui(wholePath
                         ? R.string.add_entire_path : R.string.select_path))
@@ -316,6 +358,7 @@ public class MainActivity extends Activity {
     }
 
     private void inputCharacterIds() {
+        if (!ensureStorageAccess()) return;
         EditText input = input(ui(R.string.character_ids_hint), InputType.TYPE_CLASS_TEXT);
         new AlertDialog.Builder(this).setTitle(ui(R.string.add_character_ids)).setView(input)
                 .setPositiveButton(ui(R.string.add), (d, w) -> {
@@ -332,6 +375,7 @@ public class MainActivity extends Activity {
     }
 
     private void inputRemoveIndex() {
+        if (!ensureStorageAccess()) return;
         EditText input = input(ui(R.string.remove_index_hint), InputType.TYPE_CLASS_NUMBER);
         new AlertDialog.Builder(this).setTitle(ui(R.string.remove_character_title)).setView(input)
                 .setPositiveButton(ui(R.string.remove), (d, w) -> {
@@ -433,6 +477,7 @@ public class MainActivity extends Activity {
     }
 
     private void confirmClear() {
+        if (!ensureStorageAccess()) return;
         new AlertDialog.Builder(this).setTitle(ui(R.string.clear_lineup_title))
                 .setPositiveButton(ui(R.string.clear), (d, w) -> {
                     try { ConfigStore.clear(this); refreshLineup(); }
@@ -521,6 +566,7 @@ public class MainActivity extends Activity {
     }
 
     private void openMisc() {
+        if (!ensureStorageAccess()) return;
         try {
             File misc = new File(ServerFiles.install(this), "misc");
             List<File> files = new ArrayList<>();
