@@ -114,6 +114,12 @@
     <string name="update_payload_done">已替换 %1$d 个文件。重启服务器后生效。</string>
     <string name="update_payload_failed">更新失败：%1$s</string>
     <string name="update_payload_restart">立即重启服务器</string>
+    <string name="update_required_title">需要更新</string>
+    <string name="update_required_message">网盘已上传新安装包：%1$s\n\n请在 %2$d 秒内前往更新，超时后 App 将锁定。\n\n更新完成后重新打开 App 即可继续使用。</string>
+    <string name="update_locked_title">App 已锁定</string>
+    <string name="update_locked_message">已超过 1 分钟未更新，App 已锁定。\n\n请前往夸克网盘下载并安装 %1$s，安装后重新打开即可解锁。</string>
+    <string name="update_required_action">前往夸克网盘</string>
+    <string name="update_required_open_failed">无法打开夸克网盘链接，请检查设备上的浏览器或夸克网盘。</string>
 
     <string-array name="path_labels">
         <item>毁灭</item><item>巡猎</item><item>智识</item><item>同谐</item><item>虚无</item><item>存护</item><item>丰饶</item><item>记忆</item><item>欢愉</item>

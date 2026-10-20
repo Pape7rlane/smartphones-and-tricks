@@ -47,6 +47,11 @@ public class MainActivity extends Activity {
     private static final String NEONTEAM_SRTOOLS_URL = "https://srtools.neonteam.dev/1001/detail";
     private static final String RELEASE_PREFS = "release_info";
     private static final String HIDDEN_ANNOUNCEMENT_ID = "hidden_announcement_id";
+    private static final String PENDING_SIGNATURE = "quark_pending_signature";
+    private static final String PENDING_NAME = "quark_pending_name";
+    private static final String PENDING_INSTALL_TIME = "quark_pending_install_time";
+    private static final String PENDING_STARTED_AT = "quark_pending_started_at";
+    private static final long UPDATE_GRACE_MS = 60_000L;
     private TextView serverState;
     private TextView startButton;
     private TextView lineupValue;
@@ -57,6 +62,8 @@ public class MainActivity extends Activity {
     private boolean storageInitializationInProgress;
     private boolean notificationPermissionRequested;
     private boolean payloadUpdateRunning;
+    private AlertDialog updateLockDialog;
+    private Runnable updateLockTicker;
     private boolean activityStarted;
     private ReleaseInfo releaseInfo;
     private AlertDialog announcementDialog;
@@ -194,6 +201,7 @@ public class MainActivity extends Activity {
 
     @Override protected void onDestroy() {
         startupHandler.removeCallbacks(delayedStoragePermission);
+        if (updateLockTicker != null) startupHandler.removeCallbacks(updateLockTicker);
         startupExecutor.shutdown();
         releaseExecutor.shutdownNow();
         closeLiveLog();
@@ -208,14 +216,40 @@ public class MainActivity extends Activity {
     private void checkQuarkApk() {
         Context appContext = getApplicationContext();
         releaseExecutor.execute(() -> {
+            SharedPreferences preferences = appContext.getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE);
+            long installTime = currentInstallTime();
+            String pending = preferences.getString(PENDING_SIGNATURE, "");
+            if (!pending.isEmpty()) {
+                if (installTime != 0 && installTime != preferences.getLong(PENDING_INSTALL_TIME, 0)) {
+                    // The APK was reinstalled: the pending update has been handled.
+                    preferences.edit()
+                            .putString(ReleaseInfo.QUARK_APK_SIGNATURE, pending)
+                            .remove(PENDING_SIGNATURE)
+                            .remove(PENDING_STARTED_AT)
+                            .apply();
+                } else {
+                    String pendingName = preferences.getString(PENDING_NAME, "");
+                    runOnUiThread(() -> {
+                        if (activityStarted && !isFinishing() && !isDestroyed()) {
+                            showQuarkUpdateDialog(pendingName);
+                        }
+                    });
+                    return;
+                }
+            }
             try {
                 ReleaseInfo.ShareApk apk = ReleaseInfo.fetchQuarkApk();
-                String stored = appContext.getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE)
-                        .getString(ReleaseInfo.QUARK_APK_SIGNATURE, "");
+                String stored = preferences.getString(ReleaseInfo.QUARK_APK_SIGNATURE, "");
                 if (apk.signature.equals(stored)) return;
+                preferences.edit()
+                        .putString(PENDING_SIGNATURE, apk.signature)
+                        .putString(PENDING_NAME, apk.name)
+                        .putLong(PENDING_INSTALL_TIME, installTime)
+                        .putLong(PENDING_STARTED_AT, System.currentTimeMillis())
+                        .apply();
                 runOnUiThread(() -> {
                     if (activityStarted && !isFinishing() && !isDestroyed()) {
-                        showQuarkUpdateDialog(apk.name, apk.signature);
+                        showQuarkUpdateDialog(apk.name);
                     }
                 });
             } catch (Exception ignored) {
@@ -224,27 +258,59 @@ public class MainActivity extends Activity {
         });
     }
 
-    private void showQuarkUpdateDialog(String apkName, String signature) {
+    private long currentInstallTime() {
+        try {
+            return getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
+        } catch (PackageManager.NameNotFoundException ignored) {
+            return 0;
+        }
+    }
+
+    /** Blocking update prompt: stays on screen until a new APK is installed. */
+    private void showQuarkUpdateDialog(String apkName) {
         if (isFinishing() || isDestroyed()) return;
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("需要更新")
-                .setMessage("网盘里已上传新的安装包：\n" + apkName + "\n\n请先更新到最新版本后再继续使用。")
-                .setPositiveButton("前往夸克网盘", null)
+        if (updateLockDialog != null && updateLockDialog.isShowing()) return;
+        final String name = apkName.isEmpty() ? "ppSR" : apkName;
+        final AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(ui(R.string.update_required_title))
+                .setMessage(ui(R.string.update_required_message, name, 60))
+                .setPositiveButton(ui(R.string.update_required_action), null)
                 .create();
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
         dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(view -> {
-                    getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE).edit()
-                            .putString(ReleaseInfo.QUARK_APK_SIGNATURE, signature).apply();
                     try {
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(ReleaseInfo.QUARK_SHARE_URL)));
-                        dialog.dismiss();
                     } catch (Exception error) {
-                        toast("无法打开夸克网盘链接，请检查设备上的浏览器或夸克网盘。");
+                        toast(ui(R.string.update_required_open_failed));
                     }
                 }));
+        updateLockDialog = dialog;
+        dialog.setOnDismissListener(ignored -> {
+            if (updateLockDialog == dialog) updateLockDialog = null;
+        });
         dialog.show();
+        startUpdateLockCountdown(dialog, name);
+    }
+
+    private void startUpdateLockCountdown(AlertDialog dialog, String apkName) {
+        long startedAt = getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE)
+                .getLong(PENDING_STARTED_AT, System.currentTimeMillis());
+        updateLockTicker = new Runnable() {
+            @Override public void run() {
+                if (updateLockDialog != dialog || !dialog.isShowing()) return;
+                long remaining = (UPDATE_GRACE_MS - (System.currentTimeMillis() - startedAt) + 999) / 1000;
+                if (remaining > 0) {
+                    dialog.setMessage(ui(R.string.update_required_message, apkName, remaining));
+                    startupHandler.postDelayed(this, 1000);
+                } else {
+                    dialog.setTitle(ui(R.string.update_locked_title));
+                    dialog.setMessage(ui(R.string.update_locked_message, apkName));
+                }
+            }
+        };
+        startupHandler.post(updateLockTicker);
     }
 
     private void checkReleaseInfo() {
@@ -433,6 +499,7 @@ public class MainActivity extends Activity {
     }
 
     private void startServer() {
+        if (updateLockDialog != null && updateLockDialog.isShowing()) return;
         if (!ensureStorageAccess()) return;
         Intent intent = new Intent(this, PythonServerService.class).setAction(PythonServerService.ACTION_START);
         if (Build.VERSION.SDK_INT >= 26) startForegroundService(intent); else startService(intent);
