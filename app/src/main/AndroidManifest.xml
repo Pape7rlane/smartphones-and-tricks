@@ -14,7 +14,7 @@
         android:name=".PpSRApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon_default"
-        android:label="ppSR 4.6.53PS 服务器"
+        android:label="ppSR 4.6.54PS 服务器"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/icon_round"
         android:supportsRtl="true"
@@ -39,7 +39,7 @@
 
         <activity-alias android:name=".IconDefault" android:enabled="true"
             android:exported="true" android:icon="@drawable/icon_default"
-            android:label="ppSR 4.6.53PS 服务器" android:roundIcon="@drawable/icon_default"
+            android:label="ppSR 4.6.54PS 服务器" android:roundIcon="@drawable/icon_default"
             android:targetActivity=".PasswordMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -48,7 +48,7 @@
         </activity-alias>
         <activity-alias android:name=".IconLight" android:enabled="false"
             android:exported="true" android:icon="@drawable/icon_round"
-            android:label="ppSR 4.6.53PS 服务器" android:roundIcon="@drawable/icon_round"
+            android:label="ppSR 4.6.54PS 服务器" android:roundIcon="@drawable/icon_round"
             android:targetActivity=".PasswordMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -57,7 +57,7 @@
         </activity-alias>
         <activity-alias android:name=".IconRed" android:enabled="false"
             android:exported="true" android:icon="@drawable/icon_alt"
-            android:label="ppSR 4.6.53PS 服务器" android:roundIcon="@drawable/icon_alt"
+            android:label="ppSR 4.6.54PS 服务器" android:roundIcon="@drawable/icon_alt"
             android:targetActivity=".PasswordMainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

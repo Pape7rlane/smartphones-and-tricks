@@ -59,7 +59,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
-                        android:text="4.6.53PS"
+                        android:text="4.6.54PS"
                         android:textColor="@color/text_muted"
                         android:textSize="14sp" />
                 </LinearLayout>

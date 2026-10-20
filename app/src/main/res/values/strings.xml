@@ -47,7 +47,7 @@
     <string name="change_apk_icon">切换 APK 图标（读取 res PNG）</string>
     <string name="open_misc_files">打开 misc 文件</string>
     <string name="open_live_log">实时日志</string>
-    <string name="live_log_title">实时日志 · ppSR 4.6.53PS</string>
+    <string name="live_log_title">实时日志 · ppSR 4.6.54PS</string>
     <string name="live_log_waiting">等待服务器日志，请先启动服务器...</string>
     <string name="live_log_empty">日志已清空，等待新的输出...</string>
     <string name="live_log_truncated">仅显示最近 128 KB 日志</string>

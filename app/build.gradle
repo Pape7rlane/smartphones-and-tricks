@@ -24,8 +24,8 @@ android {
         applicationId 'com.ppsr.control'
         minSdk 26
         targetSdk 35
-        versionCode 22
-        versionName '4.6.53PS'
+        versionCode 23
+        versionName '4.6.54PS'
         ndk { abiFilters 'arm64-v8a' }
     }
     sourceSets { main { assets.srcDir(serverAssets); assets.srcDir(releaseInfoAssets) } }
