@@ -210,13 +210,13 @@ public class MainActivity extends Activity {
         releaseExecutor.execute(() -> {
             try {
                 ReleaseInfo.ShareApk apk = ReleaseInfo.fetchQuarkApk();
-                SharedPreferences preferences = appContext.getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE);
-                String stored = preferences.getString(ReleaseInfo.QUARK_APK_SIGNATURE, "");
+                String stored = appContext.getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE)
+                        .getString(ReleaseInfo.QUARK_APK_SIGNATURE, "");
                 if (apk.signature.equals(stored)) return;
-                preferences.edit().putString(ReleaseInfo.QUARK_APK_SIGNATURE, apk.signature).apply();
-                if (stored.isEmpty()) return; // First launch: remember what is already published.
                 runOnUiThread(() -> {
-                    if (activityStarted && !isFinishing() && !isDestroyed()) showQuarkUpdateDialog(apk.name);
+                    if (activityStarted && !isFinishing() && !isDestroyed()) {
+                        showQuarkUpdateDialog(apk.name, apk.signature);
+                    }
                 });
             } catch (Exception ignored) {
                 // Share folder unreachable: keep running the current build.
@@ -224,17 +224,19 @@ public class MainActivity extends Activity {
         });
     }
 
-    private void showQuarkUpdateDialog(String apkName) {
+    private void showQuarkUpdateDialog(String apkName, String signature) {
         if (isFinishing() || isDestroyed()) return;
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("发现新安装包")
-                .setMessage("网盘里已上传新的安装包：\n" + apkName + "\n\n请下载安装后再继续使用。")
+                .setTitle("需要更新")
+                .setMessage("网盘里已上传新的安装包：\n" + apkName + "\n\n请先更新到最新版本后再继续使用。")
                 .setPositiveButton("前往夸克网盘", null)
                 .create();
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
         dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
                 .setOnClickListener(view -> {
+                    getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE).edit()
+                            .putString(ReleaseInfo.QUARK_APK_SIGNATURE, signature).apply();
                     try {
                         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(ReleaseInfo.QUARK_SHARE_URL)));
                         dialog.dismiss();
