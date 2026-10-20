@@ -2,7 +2,7 @@
   "latest_version_code": 22,
   "latest_version_name": "4.6.53PS",
   "download_url": "https://pan.quark.cn/s/e99add200b01",
-  "announcement_id": "ppsr-4.6.53ps-20261020",
-  "announcement_title": "ppSR 4.6.53PS 更新公告",
-  "announcement_body": "更新内容（Changes）\n\n修复了没有 Ex Eidolon（额外星魂）的角色，其星魂界面中的星魂选项无法点击的问题。\n\n新增对 Firefly SRTools 同步功能的兼容支持，可用于更改 Ex Eidolon（额外星魂）。\n\n现在，你可以在 Firefly SRTools 中修改角色的 Ex Eidolon 配置，然后进行同步，修改结果就会在游戏中生效。"
+  "announcement_id": "ppsr-4.6.53ps-updatecheck-20261020",
+  "announcement_title": "ppSR 4.6.53PS 更新说明",
+  "announcement_body": "更新内容（Changes）\n\n1. 新增「检查更新（服务器文件）」按钮：在「工具」里点一下，会自动下载并替换最新服务端文件，完成后可以一键重启服务器。\n\n2. 更新时会保留 persistent.json、freesr-data.json 和 logs/，角色数据和日志不会丢。\n\n3. 网盘里上传新的安装包后，打开 App 会弹出更新提示。\n\n注意：检查更新只替换服务端文件（build），不会重装启动器 APK。"
 }
