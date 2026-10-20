@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -168,6 +169,7 @@ public class MainActivity extends Activity {
         startService(new Intent(this, PythonServerService.class)
                 .setAction(PythonServerService.ACTION_STATUS));
         checkReleaseInfo();
+        checkQuarkApk();
         refreshConfiguration();
     }
 
@@ -198,6 +200,46 @@ public class MainActivity extends Activity {
 
     private void scheduleStoragePermissionRetry() {
         startupHandler.postDelayed(delayedStoragePermission, 500);
+    }
+
+    private void checkQuarkApk() {
+        Context appContext = getApplicationContext();
+        releaseExecutor.execute(() -> {
+            try {
+                ReleaseInfo.ShareApk apk = ReleaseInfo.fetchQuarkApk();
+                SharedPreferences preferences = appContext.getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE);
+                String stored = preferences.getString(ReleaseInfo.QUARK_APK_SIGNATURE, "");
+                if (apk.signature.equals(stored)) return;
+                preferences.edit().putString(ReleaseInfo.QUARK_APK_SIGNATURE, apk.signature).apply();
+                if (stored.isEmpty()) return; // First launch: remember what is already published.
+                runOnUiThread(() -> {
+                    if (activityStarted && !isFinishing() && !isDestroyed()) showQuarkUpdateDialog(apk.name);
+                });
+            } catch (Exception ignored) {
+                // Share folder unreachable: keep running the current build.
+            }
+        });
+    }
+
+    private void showQuarkUpdateDialog(String apkName) {
+        if (isFinishing() || isDestroyed()) return;
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("发现新安装包")
+                .setMessage("网盘里已上传新的安装包：\n" + apkName + "\n\n请下载安装后再继续使用。")
+                .setPositiveButton("前往夸克网盘", null)
+                .create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(view -> {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(ReleaseInfo.QUARK_SHARE_URL)));
+                        dialog.dismiss();
+                    } catch (Exception error) {
+                        toast("无法打开夸克网盘链接，请检查设备上的浏览器或夸克网盘。");
+                    }
+                }));
+        dialog.show();
     }
 
     private void checkReleaseInfo() {

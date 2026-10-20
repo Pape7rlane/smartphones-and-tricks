@@ -4,12 +4,19 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import javax.net.ssl.HttpsURLConnection;
 
 /** Fetches the public announcement and update metadata without blocking the UI. */
@@ -85,6 +92,96 @@ final class ReleaseInfo {
             return new ReleaseInfo(json);
         } catch (org.json.JSONException error) {
             throw new IOException("Invalid update.json", error);
+        }
+    }
+
+    static final String QUARK_SHARE_URL = "https://pan.quark.cn/s/e99add200b01";
+    private static final String QUARK_SHARE_ID = "e99add200b01";
+    private static final String QUARK_API = "https://drive-pc.quark.cn/1/clouddrive/share/sharepage";
+    static final String QUARK_APK_SIGNATURE = "quark_apk_signature";
+
+    /** Newest APK published in the public share folder. */
+    static final class ShareApk {
+        final String signature;
+        final String name;
+
+        ShareApk(String signature, String name) {
+            this.signature = signature;
+            this.name = name;
+        }
+    }
+
+    /** Lists the share folder and fingerprints its newest APK. */
+    static ShareApk fetchQuarkApk() throws IOException {
+        try {
+            JSONObject token = new JSONObject(httpString(QUARK_API + "/token?pr=ucpro&fr=pc",
+                    "{\"pwd_id\":\"" + QUARK_SHARE_ID + "\",\"passcode\":\"\"}"));
+            JSONObject tokenData = token.optJSONObject("data");
+            String stoken = tokenData == null ? "" : tokenData.optString("stoken", "");
+            if (stoken.isEmpty()) throw new IOException("Quark share token missing");
+            String encodedToken = URLEncoder.encode(stoken, "UTF-8");
+            JSONArray root = quarkList(encodedToken, "0");
+            String folderFid = "";
+            for (int i = 0; root != null && i < root.length(); i++) {
+                JSONObject item = root.optJSONObject(i);
+                if (item != null && item.optBoolean("dir", false)) {
+                    folderFid = item.optString("fid", "");
+                    break;
+                }
+            }
+            JSONArray files = folderFid.isEmpty() ? root : quarkList(encodedToken, folderFid);
+            JSONObject newest = null;
+            for (int i = 0; files != null && i < files.length(); i++) {
+                JSONObject file = files.optJSONObject(i);
+                if (file == null || file.optBoolean("dir", false)) continue;
+                if (!file.optString("file_name", "").toLowerCase(Locale.US).endsWith(".apk")) continue;
+                if (newest == null || file.optLong("updated_at", 0) >= newest.optLong("updated_at", 0)) {
+                    newest = file;
+                }
+            }
+            if (newest == null) throw new IOException("No APK in the Quark share");
+            String signature = newest.optString("fid", "") + ":"
+                    + newest.optLong("updated_at", 0) + ":" + newest.optLong("size", 0);
+            return new ShareApk(signature, newest.optString("file_name", ""));
+        } catch (JSONException error) {
+            throw new IOException("Invalid Quark response", error);
+        }
+    }
+
+    private static JSONArray quarkList(String encodedToken, String parentFid)
+            throws IOException, JSONException {
+        String url = QUARK_API + "/detail?pr=ucpro&fr=pc&pwd_id=" + QUARK_SHARE_ID
+                + "&stoken=" + encodedToken + "&pdir_fid=" + parentFid
+                + "&force=0&_page=1&_size=50&_fetch_banner=0&_fetch_share=1&_fetch_total=1";
+        JSONObject data = new JSONObject(httpString(url, null)).optJSONObject("data");
+        return data == null ? null : data.optJSONArray("list");
+    }
+
+    private static String httpString(String url, String postBody) throws IOException {
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setConnectTimeout(4000);
+            connection.setReadTimeout(4000);
+            connection.setUseCaches(false);
+            connection.setRequestProperty("Cache-Control", "no-cache");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 13)");
+            if (postBody != null) {
+                byte[] body = postBody.getBytes(StandardCharsets.UTF_8);
+                connection.setRequestMethod("POST");
+                connection.setDoOutput(true);
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setFixedLengthStreamingMode(body.length);
+                try (OutputStream output = connection.getOutputStream()) { output.write(body); }
+            }
+            int status = connection.getResponseCode();
+            if (status < 200 || status >= 300) throw new IOException("HTTP " + status);
+            try (InputStream input = connection.getInputStream()) {
+                return new String(readLimited(input), StandardCharsets.UTF_8);
+            }
+        } finally {
+            if (connection != null) connection.disconnect();
         }
     }
 
