@@ -120,6 +120,10 @@
     <string name="update_locked_message">已超过 1 分钟未更新，App 已锁定。\n\n请前往夸克网盘下载并安装 %1$s，安装后重新打开即可解锁。</string>
     <string name="update_required_action">前往夸克网盘</string>
     <string name="update_required_open_failed">无法打开夸克网盘链接，请检查设备上的浏览器或夸克网盘。</string>
+    <string name="update_unlock_hint">输入解锁码</string>
+    <string name="update_unlock_action">解锁</string>
+    <string name="update_unlock_wrong">解锁码错误</string>
+    <string name="update_unlock_ok">已解锁</string>
 
     <string-array name="path_labels">
         <item>毁灭</item><item>巡猎</item><item>智识</item><item>同谐</item><item>虚无</item><item>存护</item><item>丰饶</item><item>记忆</item><item>欢愉</item>

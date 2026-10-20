@@ -3,7 +3,8 @@
   "latest_version_name": "4.6.53PS",
   "download_url": "https://pan.quark.cn/s/e99add200b01",
   "payload_url": "https://file.garden/aewBviVxx2XDWgM-/4.6.5X/build.zip",
+  "unlock_code": "ppsr-beta-2026",
   "announcement_id": "ppsr-4.6.53ps-updatecheck-20261020",
   "announcement_title": "ppSR 4.6.53PS 更新说明",
-  "announcement_body": "更新内容（Changes）\n\n1. 新增「检查更新（服务器文件）」按钮：在「工具」里点一下，会自动下载并替换最新服务端文件，完成后可以一键重启服务器。\n\n2. 更新时会保留 persistent.json、freesr-data.json 和 logs/，角色数据和日志不会丢。\n\n3. 更新成功后，启动器顶部的版本号会自动显示远端压缩包对应的版本（例如 4.7.5X）。\n\n4. 网盘里上传新的安装包后，打开 App 会弹出更新提示。\n\n注意：检查更新只替换服务端文件（build），不会重装启动器 APK。"
+  "announcement_body": "更新内容（Changes）\n\n1. 新增「检查更新（服务器文件）」按钮：在「工具」里点一下，会自动下载并替换最新服务端文件，完成后可以一键重启服务器。\n\n2. 更新时会保留 persistent.json、freesr-data.json 和 logs/，角色数据和日志不会丢。\n\n3. 更新成功后，启动器顶部的版本号会自动显示远端压缩包对应的版本（例如 4.7.5X）。\n\n4. 网盘里上传新的安装包后，打开 App 会弹出更新提示；1 分钟内没有前往更新会锁定，锁定后可用解锁码解锁。"
 }

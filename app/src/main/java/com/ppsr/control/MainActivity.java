@@ -331,12 +331,78 @@ public class MainActivity extends Activity {
                     dialog.setMessage(ui(R.string.update_required_message, apkName, remaining));
                     startupHandler.postDelayed(this, 1000);
                 } else {
-                    dialog.setTitle(ui(R.string.update_locked_title));
-                    dialog.setMessage(ui(R.string.update_locked_message, apkName));
+                    showLockedDialog(apkName);
                 }
             }
         };
         startupHandler.post(updateLockTicker);
+    }
+
+    /** Locked state: only an unlock code or the share link gets the user out. */
+    private void showLockedDialog(String apkName) {
+        if (isFinishing() || isDestroyed()) return;
+        if (updateLockDialog != null && updateLockDialog.isShowing()) updateLockDialog.dismiss();
+        final String name = apkName.isEmpty() ? "ppSR" : apkName;
+        int padding = Math.round(16 * getResources().getDisplayMetrics().density);
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        TextView message = new TextView(this);
+        message.setText(ui(R.string.update_locked_message, name));
+        message.setPadding(padding, padding, padding, 0);
+        final EditText input = new EditText(this);
+        input.setHint(ui(R.string.update_unlock_hint));
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setPadding(padding, 0, padding, 0);
+        content.addView(message);
+        content.addView(input);
+
+        final AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(ui(R.string.update_locked_title))
+                .setView(content)
+                .setPositiveButton(ui(R.string.update_unlock_action), null)
+                .setNegativeButton(ui(R.string.update_required_action), null)
+                .create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnShowListener(ignored -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+                if (unlockWithCode(input.getText().toString().trim())) {
+                    toast(ui(R.string.update_unlock_ok));
+                    dialog.dismiss();
+                } else {
+                    toast(ui(R.string.update_unlock_wrong));
+                }
+            });
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(view -> {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(ReleaseInfo.QUARK_SHARE_URL)));
+                } catch (Exception error) {
+                    toast(ui(R.string.update_required_open_failed));
+                }
+            });
+        });
+        updateLockDialog = dialog;
+        dialog.setOnDismissListener(ignored -> {
+            if (updateLockDialog == dialog) updateLockDialog = null;
+        });
+        dialog.show();
+    }
+
+    /** Accepts the unlock code from update.json and remembers the current share APK. */
+    private boolean unlockWithCode(String code) {
+        if (code.isEmpty()) return false;
+        ReleaseInfo info = releaseInfo != null ? releaseInfo : ReleaseInfo.loadCachedOrBundled(this);
+        String expected = info == null ? "" : info.unlockCode;
+        if (expected.isEmpty() || !expected.equalsIgnoreCase(code)) return false;
+        SharedPreferences preferences = getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE);
+        preferences.edit()
+                .putString(ReleaseInfo.QUARK_APK_SIGNATURE, preferences.getString(PENDING_SIGNATURE, ""))
+                .remove(PENDING_SIGNATURE)
+                .remove(PENDING_NAME)
+                .remove(PENDING_INSTALL_TIME)
+                .remove(PENDING_STARTED_AT)
+                .apply();
+        return true;
     }
 
     private void checkReleaseInfo() {

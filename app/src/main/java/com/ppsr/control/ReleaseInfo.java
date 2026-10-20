@@ -34,6 +34,7 @@ final class ReleaseInfo {
     final String announcementId;
     final String announcementTitle;
     final String announcementBody;
+    final String unlockCode;
 
     private ReleaseInfo(JSONObject json) {
         latestVersionCode = json.optLong("latest_version_code", 0);
@@ -47,6 +48,7 @@ final class ReleaseInfo {
         announcementId = json.optString("announcement_id", "").trim();
         announcementTitle = json.optString("announcement_title", "").trim();
         announcementBody = json.optString("announcement_body", "").trim();
+        unlockCode = json.optString("unlock_code", "").trim();
     }
 
     static ReleaseInfo loadCachedOrBundled(Context context) {
