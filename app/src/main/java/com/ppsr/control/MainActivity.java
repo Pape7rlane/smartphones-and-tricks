@@ -220,22 +220,16 @@ public class MainActivity extends Activity {
             long installTime = currentInstallTime();
             String pending = preferences.getString(PENDING_SIGNATURE, "");
             if (!pending.isEmpty()) {
-                if (installTime != 0 && installTime != preferences.getLong(PENDING_INSTALL_TIME, 0)) {
-                    // The APK was reinstalled: the pending update has been handled.
-                    preferences.edit()
-                            .putString(ReleaseInfo.QUARK_APK_SIGNATURE, pending)
-                            .remove(PENDING_SIGNATURE)
-                            .remove(PENDING_STARTED_AT)
-                            .apply();
-                } else {
-                    String pendingName = preferences.getString(PENDING_NAME, "");
-                    runOnUiThread(() -> {
-                        if (activityStarted && !isFinishing() && !isDestroyed()) {
-                            showQuarkUpdateDialog(pendingName);
-                        }
-                    });
-                    return;
-                }
+                boolean reinstalled = installTime != 0
+                        && installTime != preferences.getLong(PENDING_INSTALL_TIME, 0);
+                if (reinstalled && pendingMatchesInstalledApk(preferences, installTime)) return;
+                String pendingName = preferences.getString(PENDING_NAME, "");
+                runOnUiThread(() -> {
+                    if (activityStarted && !isFinishing() && !isDestroyed()) {
+                        showQuarkUpdateDialog(pendingName);
+                    }
+                });
+                return;
             }
             try {
                 ReleaseInfo.ShareApk apk = ReleaseInfo.fetchQuarkApk();
@@ -256,6 +250,38 @@ public class MainActivity extends Activity {
                 // Share folder unreachable: keep running the current build.
             }
         });
+    }
+
+    /**
+     * The app was reinstalled: only unlock when the installed APK is byte-for-byte the
+     * package published in the share folder (same size). Anything else keeps the lock.
+     */
+    private boolean pendingMatchesInstalledApk(SharedPreferences preferences, long installTime) {
+        try {
+            ReleaseInfo.ShareApk apk = ReleaseInfo.fetchQuarkApk();
+            long installedSize = new File(getPackageCodePath()).length();
+            if (apk.size <= 0 || apk.size != installedSize) {
+                // Wrong APK installed: keep the lock and restart the grace period.
+                preferences.edit()
+                        .putString(PENDING_SIGNATURE, apk.signature)
+                        .putString(PENDING_NAME, apk.name)
+                        .putLong(PENDING_INSTALL_TIME, installTime)
+                        .putLong(PENDING_STARTED_AT, System.currentTimeMillis())
+                        .apply();
+                return false;
+            }
+            preferences.edit()
+                    .putString(ReleaseInfo.QUARK_APK_SIGNATURE, apk.signature)
+                    .remove(PENDING_SIGNATURE)
+                    .remove(PENDING_NAME)
+                    .remove(PENDING_INSTALL_TIME)
+                    .remove(PENDING_STARTED_AT)
+                    .apply();
+            return true;
+        } catch (Exception offline) {
+            // Cannot verify without the share listing: stay locked.
+            return false;
+        }
     }
 
     private long currentInstallTime() {

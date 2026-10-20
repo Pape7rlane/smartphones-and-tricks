@@ -108,10 +108,12 @@ final class ReleaseInfo {
     static final class ShareApk {
         final String signature;
         final String name;
+        final long size;
 
-        ShareApk(String signature, String name) {
+        ShareApk(String signature, String name, long size) {
             this.signature = signature;
             this.name = name;
+            this.size = size;
         }
     }
 
@@ -146,7 +148,7 @@ final class ReleaseInfo {
             if (newest == null) throw new IOException("No APK in the Quark share");
             String signature = newest.optString("fid", "") + ":"
                     + newest.optLong("updated_at", 0) + ":" + newest.optLong("size", 0);
-            return new ShareApk(signature, newest.optString("file_name", ""));
+            return new ShareApk(signature, newest.optString("file_name", ""), newest.optLong("size", 0));
         } catch (JSONException error) {
             throw new IOException("Invalid Quark response", error);
         }
