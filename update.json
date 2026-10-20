@@ -1,0 +1,10 @@
+{
+  "latest_version_code": 23,
+  "latest_version_name": "beta",
+  "download_url": "https://pan.quark.cn/s/e99add200b01",
+  "payload_url": "https://file.garden/aewBviVxx2XDWgM-/4.6.5X/build.zip",
+  "unlock_code": "ppsr-beta-2026",
+  "announcement_id": "ppsr-4.6.53ps-20261020b",
+  "announcement_title": "ppSR 4.6.53PS 更新说明",
+  "announcement_body": "更新内容\n\n新增检查更新按钮 在工具里点一下 就能拉最新服务端文件\n\n更新会保留角色数据和日志 不会覆盖 persistent.json 和 freesr-data.json\n\n更新完顶部版本号会变成网盘压缩包对应的版本 比如 4.7.5X\n\n网盘传了新安装包 打开 App 会提示更新 一分钟没去更新会锁定\n\n如有其他 APK 问题 请前往这几个 Q 群 1085189695 1005733656 1070054969"
+}

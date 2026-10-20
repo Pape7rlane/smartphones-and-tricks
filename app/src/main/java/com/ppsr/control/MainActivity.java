@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -18,8 +19,11 @@ import android.os.Looper;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.File;
@@ -29,6 +33,8 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.json.JSONTokener;
 
@@ -36,17 +42,56 @@ public class MainActivity extends Activity {
     private static final long LARGE_JSON_SIZE = 512 * 1024;
     private static final int MAX_LIVE_LOG_BYTES = 128 * 1024;
     private static final long LIVE_LOG_REFRESH_MS = 500;
-    private static final long SERVER_START_TIMEOUT_MS = 125_000;
+    private static final long SERVER_START_TIMEOUT_MS = 305_000;
     private static final String FIREFLY_SRTOOLS_URL = "https://srtools.punklorde.org/";
     private static final String NEONTEAM_SRTOOLS_URL = "https://srtools.neonteam.dev/1001/detail";
+    private static final String RELEASE_PREFS = "release_info";
+    private static final String HIDDEN_ANNOUNCEMENT_ID = "hidden_announcement_id";
+    private static final String PENDING_SIGNATURE = "quark_pending_signature";
+    private static final String PENDING_NAME = "quark_pending_name";
+    private static final String PENDING_INSTALL_TIME = "quark_pending_install_time";
+    private static final String PENDING_STARTED_AT = "quark_pending_started_at";
+    private static final long UPDATE_GRACE_MS = 60_000L;
     private TextView serverState;
     private TextView startButton;
     private TextView lineupValue;
-    private TextView languageButton;
+    private LinearLayout exRankContainer;
     private ServerUiState serverUiState = ServerUiState.STOPPED;
     private boolean receiverRegistered;
     private boolean storageInitialized;
+    private boolean storageInitializationInProgress;
     private boolean notificationPermissionRequested;
+    private boolean payloadUpdateRunning;
+    private boolean updateCheckRunning;
+    private AlertDialog updateLockDialog;
+    private Runnable updateLockTicker;
+    private boolean activityStarted;
+    private ReleaseInfo releaseInfo;
+    private AlertDialog announcementDialog;
+    private AlertDialog forcedUpdateDialog;
+    private String shownAnnouncementId;
+    private long installedVersionCode;
+    private final ExecutorService releaseExecutor = Executors.newSingleThreadExecutor(task -> {
+        Thread thread = new Thread(task, "ppsr-release-check");
+        thread.setDaemon(true);
+        return thread;
+    });
+    private final ExecutorService startupExecutor = Executors.newSingleThreadExecutor(task -> {
+        Thread thread = new Thread(task, "ppsr-ui-startup");
+        thread.setDaemon(true);
+        return thread;
+    });
+    private final Handler startupHandler = new Handler(Looper.getMainLooper());
+    private final Runnable delayedStoragePermission = () -> {
+        if (isFinishing() || isDestroyed()) return;
+        if (isReleaseDialogShowing() || requiresUpdate(releaseInfo)) {
+            scheduleStoragePermissionRetry();
+            return;
+        }
+        if (StorageAccess.isGranted(this)) return;
+        StorageAccess.request(this);
+        toast(ui(R.string.storage_permission));
+    };
     private final Handler liveLogHandler = new Handler(Looper.getMainLooper());
     private final Handler serverStateHandler = new Handler(Looper.getMainLooper());
     private final Runnable serverStartTimeout = () -> {
@@ -94,18 +139,15 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         bindViews();
         applyLanguage();
-        ensureStorageAccess();
+        // Draw the home screen before opening all-files settings on first launch.
+        startupHandler.postDelayed(delayedStoragePermission, 250);
     }
 
     private void bindViews() {
         serverState = findViewById(R.id.serverState);
         startButton = findViewById(R.id.startButton);
         lineupValue = findViewById(R.id.lineupValue);
-        languageButton = findViewById(R.id.languageButton);
-        languageButton.setOnClickListener(v -> {
-            UiLanguage.toggle(this);
-            applyLanguage();
-        });
+        exRankContainer = findViewById(R.id.exRankContainer);
         startButton.setOnClickListener(v -> startServer());
         findViewById(R.id.stopButton).setOnClickListener(v -> stopServer());
         findViewById(R.id.tbButton).setOnClickListener(v -> chooseTrailblazer());
@@ -120,6 +162,8 @@ public class MainActivity extends Activity {
         findViewById(R.id.iconButton).setOnClickListener(v -> chooseIcon());
         findViewById(R.id.miscButton).setOnClickListener(v -> openMisc());
         findViewById(R.id.liveLogButton).setOnClickListener(v -> showLiveLog());
+        findViewById(R.id.checkUpdateButton).setOnClickListener(v -> checkServerPayloadUpdate());
+        applyPayloadLabel();
         findViewById(R.id.fireflySrtoolsButton).setOnClickListener(
                 v -> openWebsite(FIREFLY_SRTOOLS_URL));
         findViewById(R.id.neonteamSrtoolsButton).setOnClickListener(
@@ -128,38 +172,460 @@ public class MainActivity extends Activity {
 
     @Override protected void onStart() {
         super.onStart();
+        activityStarted = true;
         IntentFilter filter = new IntentFilter(PythonServerService.ACTION_STATE);
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(stateReceiver, filter, RECEIVER_NOT_EXPORTED);
         else registerReceiver(stateReceiver, filter);
         receiverRegistered = true;
         startService(new Intent(this, PythonServerService.class)
                 .setAction(PythonServerService.ACTION_STATUS));
-        refreshLineup();
+        checkReleaseInfo();
+        checkQuarkApk();
+        refreshConfiguration();
     }
 
     @Override protected void onResume() {
         super.onResume();
+        showForcedUpdateIfRequired();
         if (StorageAccess.isGranted(this)) {
-            if (!storageInitialized) initializeStorage();
-            if (!notificationPermissionRequested) {
-                notificationPermissionRequested = true;
-                requestNotificationPermission();
-            }
+            refreshConfiguration();
+            requestNotificationPermissionWhenReady();
         }
     }
 
     @Override protected void onStop() {
+        activityStarted = false;
         if (receiverRegistered) { unregisterReceiver(stateReceiver); receiverRegistered = false; }
+        shownAnnouncementId = null;
         super.onStop();
     }
 
     @Override protected void onDestroy() {
+        startupHandler.removeCallbacks(delayedStoragePermission);
+        if (updateLockTicker != null) startupHandler.removeCallbacks(updateLockTicker);
+        startupExecutor.shutdown();
+        releaseExecutor.shutdownNow();
         closeLiveLog();
         serverStateHandler.removeCallbacks(serverStartTimeout);
         super.onDestroy();
     }
 
+    private void scheduleStoragePermissionRetry() {
+        startupHandler.postDelayed(delayedStoragePermission, 500);
+    }
+
+    private void checkQuarkApk() {
+        Context appContext = getApplicationContext();
+        updateCheckRunning = true;
+        releaseExecutor.execute(() -> {
+            try {
+            SharedPreferences preferences = appContext.getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE);
+            long installTime = currentInstallTime();
+            String pending = preferences.getString(PENDING_SIGNATURE, "");
+            if (!pending.isEmpty()) {
+                boolean reinstalled = installTime != 0
+                        && installTime != preferences.getLong(PENDING_INSTALL_TIME, 0);
+                if (reinstalled && pendingMatchesInstalledApk(preferences, installTime)) return;
+                String pendingName = preferences.getString(PENDING_NAME, "");
+                runOnUiThread(() -> {
+                    if (activityStarted && !isFinishing() && !isDestroyed()) {
+                        showQuarkUpdateDialog(pendingName);
+                    }
+                });
+                return;
+            }
+            try {
+                ReleaseInfo.ShareApk apk = ReleaseInfo.fetchQuarkApk();
+                if (apk == null) return;
+                String stored = preferences.getString(ReleaseInfo.QUARK_APK_SIGNATURE, "");
+                if (apk.signature.equals(stored)) return;
+                if (apk.size > 0 && apk.size == currentApkSize()) {
+                    // Installed build is the one published in the share: nothing to do.
+                    preferences.edit().putString(ReleaseInfo.QUARK_APK_SIGNATURE, apk.signature).apply();
+                    return;
+                }
+                preferences.edit()
+                        .putString(PENDING_SIGNATURE, apk.signature)
+                        .putString(PENDING_NAME, apk.name)
+                        .putLong(PENDING_INSTALL_TIME, installTime)
+                        .putLong(PENDING_STARTED_AT, System.currentTimeMillis())
+                        .apply();
+                runOnUiThread(() -> {
+                    if (activityStarted && !isFinishing() && !isDestroyed()) {
+                        showQuarkUpdateDialog(apk.name);
+                    }
+                });
+            } catch (Exception failure) {
+                // Cannot verify the published APK: stay locked instead of trusting the client.
+                runOnUiThread(() -> {
+                    if (activityStarted && !isFinishing() && !isDestroyed()) {
+                        showLockedDialog(ui(R.string.update_check_failed_title),
+                                ui(R.string.update_check_failed_message));
+                    }
+                });
+            }
+            } finally {
+                runOnUiThread(() -> updateCheckRunning = false);
+            }
+        });
+    }
+
+    /**
+     * The app was reinstalled: only unlock when the installed APK is byte-for-byte the
+     * package published in the share folder (same size). Anything else keeps the lock.
+     */
+    private boolean pendingMatchesInstalledApk(SharedPreferences preferences, long installTime) {
+        try {
+            ReleaseInfo.ShareApk apk = ReleaseInfo.fetchQuarkApk();
+            if (apk == null) return false;
+            long installedSize = currentApkSize();
+            if (apk.size <= 0 || apk.size != installedSize) {
+                // Wrong APK installed: keep the lock and restart the grace period.
+                preferences.edit()
+                        .putString(PENDING_SIGNATURE, apk.signature)
+                        .putString(PENDING_NAME, apk.name)
+                        .putLong(PENDING_INSTALL_TIME, installTime)
+                        .putLong(PENDING_STARTED_AT, System.currentTimeMillis())
+                        .apply();
+                return false;
+            }
+            preferences.edit()
+                    .putString(ReleaseInfo.QUARK_APK_SIGNATURE, apk.signature)
+                    .remove(PENDING_SIGNATURE)
+                    .remove(PENDING_NAME)
+                    .remove(PENDING_INSTALL_TIME)
+                    .remove(PENDING_STARTED_AT)
+                    .apply();
+            return true;
+        } catch (Exception offline) {
+            // Cannot verify without the share listing: stay locked.
+            return false;
+        }
+    }
+
+    /** Size of the installed base.apk, used to recognise the published build. */
+    private long currentApkSize() {
+        return new File(getPackageCodePath()).length();
+    }
+
+    private long currentInstallTime() {
+        try {
+            return getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
+        } catch (PackageManager.NameNotFoundException ignored) {
+            return 0;
+        }
+    }
+
+    /** Blocking update prompt: stays on screen until a new APK is installed. */
+    private void showQuarkUpdateDialog(String apkName) {
+        if (isFinishing() || isDestroyed()) return;
+        if (updateLockDialog != null && updateLockDialog.isShowing()) return;
+        final String name = apkName.isEmpty() ? "ppSR" : apkName;
+        final AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(ui(R.string.update_required_title))
+                .setMessage(ui(R.string.update_required_message, name, 60))
+                .setPositiveButton(ui(R.string.update_required_action), null)
+                .create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(view -> {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(ReleaseInfo.QUARK_SHARE_URL)));
+                    } catch (Exception error) {
+                        toast(ui(R.string.update_required_open_failed));
+                    }
+                }));
+        updateLockDialog = dialog;
+        dialog.setOnDismissListener(ignored -> {
+            if (updateLockDialog == dialog) updateLockDialog = null;
+        });
+        stopServer();
+        dialog.show();
+        startUpdateLockCountdown(dialog, name);
+    }
+
+    private void startUpdateLockCountdown(AlertDialog dialog, String apkName) {
+        long startedAt = getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE)
+                .getLong(PENDING_STARTED_AT, System.currentTimeMillis());
+        updateLockTicker = new Runnable() {
+            @Override public void run() {
+                if (updateLockDialog != dialog || !dialog.isShowing()) return;
+                long remaining = (UPDATE_GRACE_MS - (System.currentTimeMillis() - startedAt) + 999) / 1000;
+                if (remaining > 0) {
+                    dialog.setMessage(ui(R.string.update_required_message, apkName, remaining));
+                    startupHandler.postDelayed(this, 1000);
+                } else {
+                    showLockedDialog(apkName);
+                }
+            }
+        };
+        startupHandler.post(updateLockTicker);
+    }
+
+    private void showLockedDialog(String apkName) {
+        String name = apkName.isEmpty() ? "ppSR" : apkName;
+        showLockedDialog(ui(R.string.update_locked_title), ui(R.string.update_locked_message, name));
+    }
+
+    /** Locked state: only an unlock code or the share link gets the user out. */
+    private void showLockedDialog(String title, String text) {
+        if (isFinishing() || isDestroyed()) return;
+        if (updateLockDialog != null && updateLockDialog.isShowing()) updateLockDialog.dismiss();
+        int padding = Math.round(16 * getResources().getDisplayMetrics().density);
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        TextView message = new TextView(this);
+        message.setText(text);
+        message.setPadding(padding, padding, padding, 0);
+        final EditText input = new EditText(this);
+        input.setHint(ui(R.string.update_unlock_hint));
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        input.setPadding(padding, 0, padding, 0);
+        content.addView(message);
+        content.addView(input);
+
+        final AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setView(content)
+                .setPositiveButton(ui(R.string.update_unlock_action), null)
+                .setNegativeButton(ui(R.string.update_required_action), null)
+                .create();
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnShowListener(ignored -> {
+            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+                if (unlockWithCode(input.getText().toString().trim())) {
+                    toast(ui(R.string.update_unlock_ok));
+                    dialog.dismiss();
+                } else {
+                    toast(ui(R.string.update_unlock_wrong));
+                }
+            });
+            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setOnClickListener(view -> {
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(ReleaseInfo.QUARK_SHARE_URL)));
+                } catch (Exception error) {
+                    toast(ui(R.string.update_required_open_failed));
+                }
+            });
+        });
+        updateLockDialog = dialog;
+        dialog.setOnDismissListener(ignored -> {
+            if (updateLockDialog == dialog) updateLockDialog = null;
+        });
+        dialog.show();
+    }
+
+    /** Accepts the unlock code from update.json and remembers the current share APK. */
+    private boolean unlockWithCode(String code) {
+        if (code.isEmpty()) return false;
+        ReleaseInfo info = releaseInfo != null ? releaseInfo : ReleaseInfo.loadCachedOrBundled(this);
+        String expected = info == null ? "" : info.unlockCode;
+        if (expected.isEmpty() || !expected.equalsIgnoreCase(code)) return false;
+        SharedPreferences preferences = getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE);
+        String pending = preferences.getString(PENDING_SIGNATURE, "");
+        SharedPreferences.Editor editor = preferences.edit()
+                .remove(PENDING_SIGNATURE)
+                .remove(PENDING_NAME)
+                .remove(PENDING_INSTALL_TIME)
+                .remove(PENDING_STARTED_AT);
+        if (!pending.isEmpty()) editor.putString(ReleaseInfo.QUARK_APK_SIGNATURE, pending);
+        editor.apply();
+        return true;
+    }
+
+    private void checkReleaseInfo() {
+        try {
+            android.content.pm.PackageInfo packageInfo = getPackageManager()
+                    .getPackageInfo(getPackageName(), 0);
+            installedVersionCode = Build.VERSION.SDK_INT >= 28
+                    ? packageInfo.getLongVersionCode() : packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException ignored) {
+            installedVersionCode = 0;
+        }
+
+        applyReleaseInfo(ReleaseInfo.loadCachedOrBundled(this));
+        Context appContext = getApplicationContext();
+        releaseExecutor.execute(() -> {
+            try {
+                ReleaseInfo remote = ReleaseInfo.fetchAndCache(appContext);
+                runOnUiThread(() -> {
+                    if (activityStarted && !isFinishing() && !isDestroyed()) applyReleaseInfo(remote);
+                });
+            } catch (Exception ignored) {
+                // Keep using the cached or bundled notice when the network is unavailable.
+            }
+        });
+    }
+
+    private void applyReleaseInfo(ReleaseInfo info) {
+        releaseInfo = info;
+        if (requiresUpdate(info)) {
+            if (announcementDialog != null && announcementDialog.isShowing()) {
+                announcementDialog.dismiss();
+            }
+            shownAnnouncementId = null;
+            showForcedUpdateIfRequired();
+            return;
+        }
+        if (forcedUpdateDialog != null && forcedUpdateDialog.isShowing()) {
+            forcedUpdateDialog.dismiss();
+        }
+        showAnnouncementIfRequired(info);
+    }
+
+    private boolean requiresUpdate(ReleaseInfo info) {
+        return info != null && info.latestVersionCode > installedVersionCode
+                && !info.downloadUrl.isEmpty();
+    }
+
+    private boolean isReleaseDialogShowing() {
+        return (announcementDialog != null && announcementDialog.isShowing())
+                || (forcedUpdateDialog != null && forcedUpdateDialog.isShowing());
+    }
+
+    private void showAnnouncementIfRequired(ReleaseInfo info) {
+        if (isFinishing() || isDestroyed() || info == null
+                || info.announcementId.isEmpty() || info.announcementTitle.isEmpty()
+                || info.announcementBody.isEmpty() || requiresUpdate(info)) return;
+        String hiddenId = getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE)
+                .getString(HIDDEN_ANNOUNCEMENT_ID, "");
+        if (info.announcementId.equals(hiddenId)
+                || info.announcementId.equals(shownAnnouncementId)) return;
+        if (announcementDialog != null && announcementDialog.isShowing()) {
+            announcementDialog.dismiss();
+        }
+
+        LinearLayout content = new LinearLayout(this);
+        content.setOrientation(LinearLayout.VERTICAL);
+        int padding = Math.round(20 * getResources().getDisplayMetrics().density);
+        ScrollView scroll = new ScrollView(this);
+        TextView body = new TextView(this);
+        body.setText(info.announcementBody);
+        body.setTextSize(16);
+        body.setPadding(padding, padding, padding, padding);
+        scroll.addView(body);
+        content.addView(scroll, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                Math.round(300 * getResources().getDisplayMetrics().density)));
+        CheckBox hide = new CheckBox(this);
+        hide.setText("不再显示此公告");
+        hide.setPadding(padding, 0, padding, 0);
+        content.addView(hide);
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle(info.announcementTitle)
+                .setView(content)
+                .setPositiveButton("关闭", (d, which) -> {
+                    if (hide.isChecked()) {
+                        getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE).edit()
+                                .putString(HIDDEN_ANNOUNCEMENT_ID, info.announcementId).apply();
+                    }
+                })
+                .create();
+        announcementDialog = dialog;
+        shownAnnouncementId = info.announcementId;
+        dialog.setOnDismissListener(ignored -> {
+            if (announcementDialog == dialog) announcementDialog = null;
+            startupHandler.postDelayed(this::requestNotificationPermissionWhenReady, 250);
+        });
+        dialog.show();
+    }
+
+    private void requestNotificationPermissionWhenReady() {
+        if (notificationPermissionRequested || !StorageAccess.isGranted(this)
+                || requiresUpdate(releaseInfo) || isReleaseDialogShowing()
+                || isFinishing() || isDestroyed()) return;
+        notificationPermissionRequested = true;
+        requestNotificationPermission();
+    }
+
+    private void showForcedUpdateIfRequired() {
+        ReleaseInfo info = releaseInfo;
+        if (isFinishing() || isDestroyed() || !requiresUpdate(info)
+                || (forcedUpdateDialog != null && forcedUpdateDialog.isShowing())) return;
+        String version = info.latestVersionName.isEmpty()
+                ? String.valueOf(info.latestVersionCode) : info.latestVersionName;
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("需要更新")
+                .setMessage("发现 ppSR " + version + "。请先更新到最新版本后再继续使用。")
+                .setPositiveButton("前往夸克网盘", null)
+                .create();
+        forcedUpdateDialog = dialog;
+        dialog.setCancelable(false);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.setOnDismissListener(ignored -> {
+            if (forcedUpdateDialog == dialog) forcedUpdateDialog = null;
+        });
+        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(view -> {
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(info.downloadUrl)));
+                        dialog.dismiss();
+                    } catch (Exception error) {
+                        toast("无法打开夸克更新链接，请检查设备上的浏览器或夸克网盘。");
+                    }
+                }));
+        dialog.show();
+    }
+
+    /** Shows the payload folder name (e.g. 4.7.5X) once a payload has been downloaded. */
+    private void applyPayloadLabel() {
+        String label = getSharedPreferences(PayloadUpdater.PREFS, MODE_PRIVATE)
+                .getString(PayloadUpdater.KEY_LABEL, "");
+        TextView view = findViewById(R.id.versionLabel);
+        if (view != null && !label.isEmpty()) view.setText(label);
+    }
+
+    private void checkServerPayloadUpdate() {
+        if (payloadUpdateRunning) return;
+        payloadUpdateRunning = true;
+        toast(ui(R.string.update_payload_checking));
+        startupExecutor.execute(() -> {
+            int files = -1;
+            String error = null;
+            try {
+                String payloadUrl = "";
+                try {
+                    payloadUrl = ReleaseInfo.fetchAndCache(this).payloadUrl;
+                } catch (Exception ignored) {
+                    // Fall back to the built-in payload URL.
+                }
+                files = PayloadUpdater.update(this, payloadUrl);
+            } catch (Exception failure) {
+                String detail = failure.getMessage();
+                error = detail == null ? failure.getClass().getSimpleName() : detail;
+            }
+            int count = files;
+            String message = error;
+            runOnUiThread(() -> {
+                payloadUpdateRunning = false;
+                if (isFinishing() || isDestroyed()) return;
+                if (message != null) {
+                    toast(ui(R.string.update_payload_failed, message));
+                    return;
+                }
+                applyPayloadLabel();
+                new AlertDialog.Builder(this)
+                        .setTitle(ui(R.string.update_payload_done_title))
+                        .setMessage(ui(R.string.update_payload_done, count))
+                        .setPositiveButton(ui(R.string.update_payload_restart), (dialog, which) -> {
+                            stopServer();
+                            startupHandler.postDelayed(this::startServer, 1500);
+                        })
+                        .setNegativeButton(ui(R.string.close), null)
+                        .show();
+            });
+        });
+    }
+
     private void startServer() {
+        if (updateLockDialog != null && updateLockDialog.isShowing()) return;
+        if (updateCheckRunning) {
+            toast(ui(R.string.update_check_wait));
+            return;
+        }
         if (!ensureStorageAccess()) return;
         Intent intent = new Intent(this, PythonServerService.class).setAction(PythonServerService.ACTION_START);
         if (Build.VERSION.SDK_INT >= 26) startForegroundService(intent); else startService(intent);
@@ -168,8 +634,10 @@ public class MainActivity extends Activity {
 
     protected boolean ensureStorageAccess() {
         if (StorageAccess.isGranted(this)) {
-            if (!storageInitialized) initializeStorage();
-            return storageInitialized;
+            if (storageInitialized) return true;
+            initializeStorage();
+            toast(ui(R.string.storage_initializing));
+            return false;
         }
         StorageAccess.request(this);
         toast(ui(R.string.storage_permission));
@@ -177,14 +645,37 @@ public class MainActivity extends Activity {
     }
 
     private void initializeStorage() {
-        try {
-            ServerFiles.install(this);
-            storageInitialized = true;
-            refreshLineup();
-        } catch (Exception error) {
-            storageInitialized = false;
-            showError(error);
+        if (storageInitialized || storageInitializationInProgress
+                || !StorageAccess.isGranted(this)) return;
+        storageInitializationInProgress = true;
+        Context appContext = getApplicationContext();
+        startupExecutor.execute(() -> {
+            try {
+                ServerFiles.install(appContext);
+                runOnUiThread(() -> {
+                    storageInitializationInProgress = false;
+                    storageInitialized = true;
+                    refreshLineup();
+                    refreshExRank();
+                });
+            } catch (Exception error) {
+                runOnUiThread(() -> {
+                    storageInitializationInProgress = false;
+                    storageInitialized = false;
+                    if (!isFinishing() && !isDestroyed()) showError(error);
+                });
+            }
+        });
+    }
+
+    private void refreshConfiguration() {
+        if (!StorageAccess.isGranted(this)) return;
+        if (!storageInitialized) {
+            initializeStorage();
+            return;
         }
+        refreshLineup();
+        refreshExRank();
     }
 
     private void openWebsite(String url) {
@@ -227,10 +718,11 @@ public class MainActivity extends Activity {
     }
 
     private void applyLanguage() {
-        languageButton.setText(UiLanguage.isEnglish(this) ? "EN" : "CN");
         setText(R.id.serverSectionTitle, R.string.section_server);
         setText(R.id.quickSectionTitle, R.string.section_quick_actions);
         setText(R.id.lineupSectionTitle, R.string.section_lineup);
+        setText(R.id.exRankSectionTitle, R.string.section_ex_rank);
+        setText(R.id.exRankHint, R.string.ex_rank_hint);
         setText(R.id.toolsSectionTitle, R.string.section_tools);
         setText(R.id.stopButton, R.string.stop_server);
         setText(R.id.tbButton, R.string.change_trailblazer_path);
@@ -248,7 +740,6 @@ public class MainActivity extends Activity {
         setText(R.id.fireflySrtoolsButton, R.string.open_firefly_srtools);
         setText(R.id.neonteamSrtoolsButton, R.string.open_neonteam_srtools);
         renderServerState();
-        refreshLineup();
     }
 
     private void setText(int viewId, int textId) {
@@ -260,11 +751,13 @@ public class MainActivity extends Activity {
     }
 
     private void chooseTrailblazer() {
+        if (!ensureStorageAccess()) return;
         chooseConfig(ui(R.string.trailblazer_path), UiLanguage.array(this, R.array.trailblazer_path_labels),
                 new String[]{"Destruction", "Preservation", "Harmony", "Remembrance", "Elation"}, "tb_path");
     }
 
     private void chooseMarch() {
+        if (!ensureStorageAccess()) return;
         chooseConfig(ui(R.string.march_path), UiLanguage.array(this, R.array.march_path_labels),
                 new String[]{"Preservation", "Hunt"}, "march_path");
     }
@@ -279,6 +772,7 @@ public class MainActivity extends Activity {
     }
 
     private void choosePath(boolean wholePath) {
+        if (!ensureStorageAccess()) return;
         String[] pathLabels = UiLanguage.array(this, R.array.path_labels);
         new AlertDialog.Builder(this).setTitle(ui(wholePath
                         ? R.string.add_entire_path : R.string.select_path))
@@ -315,6 +809,7 @@ public class MainActivity extends Activity {
     }
 
     private void inputCharacterIds() {
+        if (!ensureStorageAccess()) return;
         EditText input = input(ui(R.string.character_ids_hint), InputType.TYPE_CLASS_TEXT);
         new AlertDialog.Builder(this).setTitle(ui(R.string.add_character_ids)).setView(input)
                 .setPositiveButton(ui(R.string.add), (d, w) -> {
@@ -331,6 +826,7 @@ public class MainActivity extends Activity {
     }
 
     private void inputRemoveIndex() {
+        if (!ensureStorageAccess()) return;
         EditText input = input(ui(R.string.remove_index_hint), InputType.TYPE_CLASS_NUMBER);
         new AlertDialog.Builder(this).setTitle(ui(R.string.remove_character_title)).setView(input)
                 .setPositiveButton(ui(R.string.remove), (d, w) -> {
@@ -432,6 +928,7 @@ public class MainActivity extends Activity {
     }
 
     private void confirmClear() {
+        if (!ensureStorageAccess()) return;
         new AlertDialog.Builder(this).setTitle(ui(R.string.clear_lineup_title))
                 .setPositiveButton(ui(R.string.clear), (d, w) -> {
                     try { ConfigStore.clear(this); refreshLineup(); }
@@ -453,6 +950,64 @@ public class MainActivity extends Activity {
         }
     }
 
+    /** 重建“奇缘星魂”逐行开关：每个角色一行（名字 + 开关），切换立即写回配置。 */
+    private void refreshExRank() {
+        if (exRankContainer == null) return;
+        exRankContainer.removeAllViews();
+        List<ConfigStore.ExRank> entries;
+        try {
+            entries = ConfigStore.exRank(this);
+        } catch (Exception error) {
+            exRankContainer.addView(exRankRow(ui(R.string.ex_rank_read_failed, error.getMessage()), null));
+            return;
+        }
+        for (ConfigStore.ExRank entry : entries) {
+            exRankContainer.addView(exRankRow(exRankName(entry), entry));
+        }
+    }
+
+    /** 显示名用 App 内置的角色名（纯中文），取不到再退回配置里的名字。 */
+    private String exRankName(ConfigStore.ExRank entry) {
+        String name = CharacterData.nameOf(entry.avatarId, UiLanguage.isEnglish(this));
+        return name == null || name.isEmpty() ? entry.name : name;
+    }
+
+    /** 生成一行：左侧角色名，右侧开关；开关一拨就写入 persistent.json。 */
+    private View exRankRow(String label, ConfigStore.ExRank entry) {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(0, dp(6), 0, dp(6));
+
+        TextView name = new TextView(this);
+        name.setText(label);
+        name.setTextSize(15f);
+        name.setTextColor(getColor(R.color.text_primary));
+        name.setLayoutParams(new LinearLayout.LayoutParams(0,
+                LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+        row.addView(name);
+
+        if (entry != null) {
+            Switch toggle = new Switch(this);
+            // 先 setChecked 再挂监听，避免初始化时误触发一次写入。
+            toggle.setChecked(entry.active);
+            toggle.setOnCheckedChangeListener((button, checked) -> {
+                try {
+                    ConfigStore.setExRankActive(this, entry.avatarId, checked);
+                    toast(ui(checked ? R.string.ex_rank_saved_on : R.string.ex_rank_saved_off, label));
+                } catch (Exception error) {
+                    showError(error);
+                }
+            });
+            row.addView(toggle);
+        }
+        return row;
+    }
+
+    private int dp(int value) {
+        return Math.round(getResources().getDisplayMetrics().density * value);
+    }
+
     private void chooseIcon() {
         new AlertDialog.Builder(this).setTitle(ui(R.string.icon_dialog_title))
                 .setItems(UiLanguage.array(this, R.array.icon_labels), (d, which) -> {
@@ -462,6 +1017,7 @@ public class MainActivity extends Activity {
     }
 
     private void openMisc() {
+        if (!ensureStorageAccess()) return;
         try {
             File misc = new File(ServerFiles.install(this), "misc");
             List<File> files = new ArrayList<>();

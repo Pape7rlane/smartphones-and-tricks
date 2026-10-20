@@ -3,21 +3,81 @@ name: Build standalone Android APK
 on:
   workflow_dispatch:
   push:
-    branches: ["main", "master", "ppSR-4.6.51-测试UI"]
+    branches: ["main", "master", "ppSR-4.6.51-测试UI", "ppSR4.6.51-cn", "protobuf-native-test", "termux-fast-startup"]
     paths:
       - "app/**"
       - "build/**"
+      - "wheels/**"
       - "*.gradle"
       - "gradle.properties"
       - ".github/workflows/android.yml"
 
 jobs:
+  # Cross-compile the protobuf native (upb) extension for Android so the APK
+  # uses the fast C backend instead of the pure-Python one. The wheel is only a
+  # speed optimization: if this job fails, the APK job below still builds and
+  # falls back to Chaquopy's pure-Python protobuf.
+  protobuf-android:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install cibuildwheel
+        run: python -m pip install --upgrade pip build cibuildwheel
+      - name: Fetch protobuf sdist
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pbsrc"
+          python -m pip download --no-binary :all: --no-deps protobuf==6.30.2 -d "$RUNNER_TEMP/pbsrc"
+          tar -C "$RUNNER_TEMP/pbsrc" -xzf "$RUNNER_TEMP/pbsrc/protobuf-6.30.2.tar.gz"
+          test -f "$RUNNER_TEMP/pbsrc/protobuf-6.30.2/setup.py"
+      - name: Build Android wheels
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m cibuildwheel "$RUNNER_TEMP/pbsrc/protobuf-6.30.2" --output-dir wheelhouse
+          ls -l wheelhouse
+        env:
+          CIBW_PLATFORM: android
+          CIBW_ARCHS_ANDROID: "arm64_v8a x86_64"
+          CIBW_BUILD: "cp314-*"
+          CIBW_TEST_SKIP: "*"
+          CIBW_BUILD_VERBOSITY: "1"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: protobuf-android-wheels
+          path: wheelhouse/*.whl
+          if-no-files-found: error
+          retention-days: 7
+
   build:
+    needs: protobuf-android
+    if: always()
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch native protobuf wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: protobuf-android-wheels
+          path: wheels
+      - name: Verify native protobuf wheels are present
+        shell: bash
+        run: |
+          set -euo pipefail
+          ls -l wheels
+          shopt -s nullglob
+          whl=(wheels/*.whl)
+          if [ ${#whl[@]} -eq 0 ]; then
+            echo "::error::No native protobuf wheel in wheels/ — the protobuf-android job produced nothing usable."
+            exit 1
+          fi
+          echo "native wheels:"; printf '  %s\n' "${whl[@]}"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -51,7 +111,85 @@ jobs:
               exit 1
             fi
           done
+      - name: Report native protobuf presence
+        shell: bash
+        run: |
+          {
+            echo "## Native protobuf status"
+            echo
+            echo "### wheels/"
+            echo '```'
+            ls -l wheels 2>/dev/null || echo "(no wheels dir)"
+            echo '```'
+            echo "### APK entries matching upb/_message"
+            for apk in .gradle-build/app/outputs/apk/debug/*.apk .gradle-build/app/outputs/apk/release/*.apk; do
+              echo "**$(basename "$apk")**"
+              echo '```'
+              unzip -Z1 "$apk" | grep -iE 'upb|_message' || echo "(no native _upb/_message entry found)"
+              echo '```'
+            done
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Inspect Chaquopy Python payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk=$(ls .gradle-build/app/outputs/apk/release/*.apk | head -1)
+          tmp=$(mktemp -d)
+          unzip -o "$apk" 'assets/chaquopy/*' -d "$tmp" >/dev/null
+          {
+            echo "## Chaquopy payload"
+            echo
+            echo "-- build.json extract_packages --"
+            echo '```'
+            python - "$tmp" <<'PY'
+          import json, sys, glob, os
+          root = sys.argv[1]
+          for p in glob.glob(os.path.join(root, "assets/chaquopy/build.json")):
+              data = json.load(open(p))
+              print("extract_packages:", data.get("extract_packages"))
+          PY
+            echo '```'
+            echo "-- asset archives (py / pyc / so counts) --"
+            echo '```'
+            for z in "$tmp"/assets/chaquopy/*.imy "$tmp"/assets/chaquopy/*.zip; do
+              [ -e "$z" ] || continue
+              py=$(unzip -Z1 "$z" | grep -c '\.py$' || true)
+              pyc=$(unzip -Z1 "$z" | grep -c '\.pyc$' || true)
+              so=$(unzip -Z1 "$z" | grep -c '\.so$' || true)
+              echo "  $(basename "$z"): py=$py pyc=$pyc so=$so"
+            done
+            echo '```'
+            echo "-- upb entries inside requirements archives --"
+            echo '```'
+            for z in "$tmp"/assets/chaquopy/requirements*.imy; do
+              [ -e "$z" ] || continue
+              echo "  $(basename "$z"):"
+              unzip -Z1 "$z" | grep -iE 'upb|_message|\.so$' | sed 's/^/    /' || echo "    (none)"
+            done
+            echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Require native protobuf in APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk=$(ls .gradle-build/app/outputs/apk/release/*.apk | head -1)
+          tmp=$(mktemp -d)
+          unzip -o "$apk" 'assets/chaquopy/requirements*.imy' -d "$tmp" >/dev/null
+          found=0
+          for z in "$tmp"/assets/chaquopy/requirements*.imy; do
+            [ -e "$z" ] || continue
+            if unzip -Z1 "$z" | grep -qiE '_upb|_message'; then
+              echo "native protobuf present in $(basename "$z"):"
+              unzip -Z1 "$z" | grep -iE '_upb|_message' | sed 's/^/  /'
+              found=1
+            fi
+          done
+          if [ "$found" != 1 ]; then
+            echo "::error::No google/_upb/_message in the APK: protobuf fell back to pure Python, which is ~10x slower and crashed while parsing msg/classes_pb2."
+            exit 1
+          fi
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: ppSR-Standalone-APKs
           path: .gradle-build/app/outputs/apk/**/*.apk

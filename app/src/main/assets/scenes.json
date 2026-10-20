@@ -1,6 +1,6 @@
 {
-  "version": "4.6.5X-MASTER-LOCALIZED",
-  "updated_at": "2026-10-04",
+  "version": "4.7.0-BETA-UPDATE",
+  "updated_at": "2026-10-13",
   "total_worlds": 8,
   "total_scenes": 85,
   "total_combat_scenes": 16,
@@ -32,7 +32,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Party Car (Passenger Cabin)",
@@ -53,7 +56,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         }
       ]
     },
@@ -83,7 +89,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Base Zone",
@@ -104,7 +113,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Storage Zone",
@@ -125,7 +137,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Supply Zone",
@@ -146,7 +161,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Seclusion Zone",
@@ -167,7 +185,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         }
       ]
     },
@@ -197,7 +218,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Boulder Town (Underworld)",
@@ -218,7 +242,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Outlying Snow Plains",
@@ -239,7 +266,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Backwater Pass",
@@ -260,7 +290,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Great Mine",
@@ -281,7 +314,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Rivet Town",
@@ -302,7 +338,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Robot Settlement",
@@ -323,7 +362,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Silvermane Guard Restricted Zone",
@@ -344,7 +386,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Corridor of Fading Echoes",
@@ -365,7 +410,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Everwinter Hill",
@@ -386,7 +434,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Pillars of Creation",
@@ -407,7 +458,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Old Weapon Testing Ground",
@@ -428,7 +482,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         }
       ]
     },
@@ -458,7 +515,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Exalting Sanctum",
@@ -479,7 +539,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Aurum Alley (Commercial Night Market)",
@@ -500,7 +563,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Cloudford",
@@ -521,7 +587,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Stargazer Navalia",
@@ -542,7 +611,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Divination Commission",
@@ -563,7 +635,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Artisanship Commission",
@@ -584,7 +659,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Fyxestroll Garden",
@@ -605,7 +683,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Alchemy Commission",
@@ -626,7 +707,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Scalegorge Waterscape",
@@ -647,7 +731,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "The Shackling Prison",
@@ -668,7 +755,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Skysplitter (The Wardance Arena)",
@@ -689,7 +779,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         }
       ]
     },
@@ -719,7 +812,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Dreamflux Reef (Underground Refuge)",
@@ -740,7 +836,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "The Reverie (Reality Hotel)",
@@ -761,7 +860,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Penacony Paperfold University College",
@@ -782,7 +884,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "The Radiant Feldspar (Trailblaze-Stern)",
@@ -803,7 +908,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "The Reverie (Dreamscape Hotel)",
@@ -824,7 +932,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "A Child's Dream",
@@ -845,7 +956,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Dream's Edge (Combat Rooftop)",
@@ -866,7 +980,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Clock Studios Theme Park",
@@ -887,7 +1004,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Dewlight Pavilion",
@@ -908,7 +1028,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "SoulGlad Scorchsand Audition Venue",
@@ -929,7 +1052,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Penacony Grand Theater",
@@ -950,12 +1076,15 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         }
       ]
     },
     {
-      "id": "amphoreus_4x",
+      "id": "amphoreus",
       "name": "Amphoreus (Eternal Holy Land)",
       "name_th": "Amphoreus (แดนศักดิ์สิทธิ์นิรันดร์)",
       "name_zh": "翁法罗斯",
@@ -980,7 +1109,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Okhema - Vortex of Genesis",
@@ -1001,7 +1133,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Okhema - Holy Acropolis Sky Bridge",
@@ -1022,7 +1157,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Okhema - Lower Sunken Valley",
@@ -1043,7 +1181,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Okhema - Beyond Time: An Eternal Page",
@@ -1064,7 +1205,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Castrum Kremnos - Aedes Elysiae (Bathhouse)",
@@ -1085,7 +1229,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Castrum Kremnos - Temple of the Titans",
@@ -1106,7 +1253,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Castrum Kremnos - Hall of Prophecy [Dawn State]",
@@ -1127,7 +1277,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Castrum Kremnos - Hall of Prophecy [Evernight State]",
@@ -1148,7 +1301,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Castrum Kremnos - Catacombs [Day/Night Statue Puzzle]",
@@ -1169,7 +1325,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Janusopolis - Sacred Colonnade Terrace [Dawn]",
@@ -1190,7 +1349,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Janusopolis - Sacred Colonnade Terrace [Evernight]",
@@ -1211,7 +1373,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Grove of Epiphany - Sunken Grove [Dawn]",
@@ -1232,7 +1397,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Grove of Epiphany - Sunken Grove [Evernight]",
@@ -1253,7 +1421,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Janusopolis - Grand Hall of Fate [Era Flipper Puzzle]",
@@ -1274,7 +1445,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Styxia - Upper Treasury & Sky Domain [Sun/Sky Puzzle]",
@@ -1295,7 +1469,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Styxia - Tartarus Abyss & River of Souls [Compass & Plates]",
@@ -1316,7 +1493,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Styxia - Warbling Shores [Watergate Port & Time Lock]",
@@ -1337,7 +1517,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Aidonia - Temple of the Muses [Console Era Switch]",
@@ -1358,7 +1541,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Styxia / Universal Matrix - Dragonbone Matrix Core",
@@ -1379,7 +1565,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Great Tomb of the Dragon - Underworld Tomb [Elevator Runes]",
@@ -1400,7 +1589,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Eye of Twilight - Sky Arena of Ares [Feather Shrine]",
@@ -1421,7 +1613,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Eye of Twilight - Port of Twilight [Warship Apron]",
@@ -1442,12 +1637,15 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         }
       ]
     },
     {
-      "id": "astropolis_5x",
+      "id": "astropolis",
       "name": "Astropolis (Star Metropolis)",
       "name_th": "Astropolis (มหานครดวงดาว)",
       "name_zh": "千星城",
@@ -1472,7 +1670,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Skycall Aery",
@@ -1493,7 +1694,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Lodestar Tower",
@@ -1514,12 +1718,15 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         }
       ]
     },
     {
-      "id": "duomension_5x",
+      "id": "planarcadia",
       "name": "Planarcadia (Duomension City & Seafeld)",
       "name_th": "Planarcadia (เมืองมิติ Duomension & Seafeld)",
       "name_zh": "二相乐园",
@@ -1544,7 +1751,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Phantasmoon Courtyard",
@@ -1565,7 +1775,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Seafeld City",
@@ -1586,7 +1799,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Graphia Academy",
@@ -1607,7 +1823,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Duomension Outer Border",
@@ -1628,7 +1847,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Dovebrook District",
@@ -1649,7 +1871,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": true
+          "calyx_supported": true,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Lookout Cloud Station",
@@ -1670,7 +1895,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Neon Skylines",
@@ -1691,7 +1919,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Pearluxe Tower",
@@ -1712,7 +1943,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Pearl's Studio",
@@ -1733,7 +1967,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Seafeld TV Tower",
@@ -1754,7 +1991,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Inkford Hermitage",
@@ -1775,7 +2015,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Desolate Maw's Demonhold",
@@ -1796,7 +2039,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Fallen Star's Cradle",
@@ -1817,7 +2063,10 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "product",
+          "is_beta": false,
+          "client_version": "Product"
         },
         {
           "name": "Starforster",
@@ -1838,20 +2087,26 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "beta",
+          "is_beta": true,
+          "client_version": "4.7 Beta",
+          "beta_notice": "Requires 4.7 Beta client. Will freeze on official Product (4.6.x) client.",
+          "beta_notice_th": "ต้องใช้ตัวเกม 4.7 Beta หากใช้ตัวเกม Product ปกติ (4.6.x) จะค้างหน้าโหลด",
+          "beta_notice_zh": "需要 4.7 Beta 测试端，正式服/Product 客户端会卡在列车加载界面"
         },
         {
-          "name": "Fleeting Joy",
-          "name_th": "Fleeting Joy (บาร์ระคนสุขโศก)",
+          "name": "Moment of Joy",
+          "name_th": "Moment of Joy (Fleeting Joy / บาร์ระคนสุขโศก)",
           "name_zh": "瞬息欢愉",
           "plane_id": 20572,
           "x": -743,
           "y": 2435,
           "z": -64637,
           "map_layer": 1,
-          "desc": "A bar where sorrow and joy are mixed",
-          "desc_th": "บาร์สังสรรค์ที่ความโศกเศร้าและความสุขผสมผสานกัน",
-          "desc_zh": "悲欢交织的瞬息酒吧",
+          "desc": "A bar where sorrow and joy are mixed (Official EN: Moment of Joy, formerly Fleeting Joy)",
+          "desc_th": "บาร์สังสรรค์ที่ความโศกเศร้าและความสุขผสมผสานกัน (ชื่อทางการ EN: Moment of Joy / เดิมเรียก Fleeting Joy)",
+          "desc_zh": "悲欢交织的瞬息酒吧（官方英文：Moment of Joy，此前曾称 Fleeting Joy）",
           "calyx_x": -743,
           "calyx_y": -999999,
           "calyx_z": -64637,
@@ -1859,9 +2114,17 @@
           "calyx_inst_id": 300001,
           "calyx_prop_id": 808,
           "calyx_entity_id": 1337,
-          "calyx_supported": false
+          "calyx_supported": false,
+          "channel": "beta",
+          "is_beta": true,
+          "client_version": "4.7 Beta",
+          "beta_notice": "Requires 4.7 Beta client. Will freeze on official Product (4.6.x) client.",
+          "beta_notice_th": "ต้องใช้ตัวเกม 4.7 Beta หากใช้ตัวเกม Product ปกติ (4.6.x) จะค้างหน้าโหลด",
+          "beta_notice_zh": "需要 4.7 Beta 测试端，正式服/Product 客户端会卡在列车加载界面"
         }
       ]
     }
-  ]
+  ],
+  "total_beta_scenes": 2,
+  "total_product_scenes": 83
 }

@@ -20,10 +20,13 @@
         "march_path": "Preservation",
         "skin": {
             "1001": 1100101,
+            "1303": 1130301,
             "1310": 1131001,
-            "1415": 1141501,
             "1407": 1140701,
-            "1501": 1150101
+            "1409": 1140901,
+            "1415": 1141501,
+            "1501": 1150101,
+            "1505": 1150501
         },
         "lineup": [
             1511,
@@ -38,13 +41,30 @@
                 "active": true
             },
             {
-                "name": "SW999 Global Passsive",
+                "name": "SW999 Global Passive",
                 "id": 150602,
                 "active": true
             },
             {
                 "name": "Aha Global Passive",
                 "id": 151104,
+                "active": true
+            }
+        ],
+        "ex_rank": [
+            {
+                "name": "JingYuan",
+                "avatar_id": 1204,
+                "active": true
+            },
+            {
+                "name": "DanHeng IL",
+                "avatar_id": 1213,
+                "active": true
+            },
+            {
+                "name": "Acheron",
+                "avatar_id": 1308,
                 "active": true
             }
         ],

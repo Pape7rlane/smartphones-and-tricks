@@ -3,6 +3,7 @@
     <string name="section_server">服务器</string>
     <string name="section_quick_actions">快捷功能</string>
     <string name="section_lineup">当前配队</string>
+    <string name="section_ex_rank">奇缘星魂</string>
     <string name="section_tools">工具</string>
     <string name="server_stopped">服务器已停止</string>
     <string name="server_starting">服务器正在启动</string>
@@ -19,7 +20,7 @@
     <string name="map_teleport">地图传送</string>
     <string name="map_teleport_help">地图传送使用说明</string>
     <string name="map_teleport_help_title">地图传送使用说明</string>
-    <string name="map_teleport_help_message">1. 先停止服务器；地图只能在服务器停止时修改。\n\n2. 点击“地图传送”，选择全部地图、可战斗地图或仅探索地图。\n\n3. 依次选择世界和地图，核对 Plane、层级、坐标与说明后点击“传送”。\n\n4. 返回首页并启动服务器，然后重新进入游戏；传送不会在当前游戏会话中立即生效。\n\n每次传送只修改 persistent.json 的 scene 配置，并先备份为 persistent.json.bak。新的传送会覆盖上一次备份。需要恢复时，请在服务器停止后用文件管理器恢复备份。\n\n可战斗地图包含花萼配置；探索地图会隐藏花萼，以减少误触导致加载卡住。右上角 CN/EN 可切换界面、地图名称与说明语言。</string>
+    <string name="map_teleport_help_message">1. 先停止服务器；地图只能在服务器停止时修改。\n\n2. 点击“地图传送”，选择全部地图、可战斗地图或仅探索地图。\n\n3. 依次选择世界和地图，核对 Plane、层级、坐标与说明后点击“传送”。\n\n4. 返回首页并启动服务器，然后重新进入游戏；传送不会在当前游戏会话中立即生效。\n\n每次传送只修改 persistent.json 的 scene 配置，并先备份为 persistent.json.bak。新的传送会覆盖上一次备份。需要恢复时，请在服务器停止后用文件管理器恢复备份。\n\n可战斗地图包含花萼配置；探索地图会隐藏花萼，以减少误触导致加载卡住。</string>
     <string name="map_filter_title">选择地图类型</string>
     <string name="map_filter_all">全部地图</string>
     <string name="map_filter_combat">可战斗地图（花萼）</string>
@@ -39,10 +40,14 @@
     <string name="lineup_read_failed">配队读取失败：%1$s</string>
     <string name="remove_character">按序号删除角色</string>
     <string name="clear_lineup">清空配队</string>
+    <string name="ex_rank_hint">逐行开关对应角色的奇缘星魂（额外星魂）。画面效果需重启游戏后生效；战斗效果立即生效。</string>
+    <string name="ex_rank_saved_on">已启用 %1$s 的奇缘星魂</string>
+    <string name="ex_rank_saved_off">已关闭 %1$s 的奇缘星魂</string>
+    <string name="ex_rank_read_failed">奇缘星魂读取失败：%1$s</string>
     <string name="change_apk_icon">切换 APK 图标（读取 res PNG）</string>
     <string name="open_misc_files">打开 misc 文件</string>
     <string name="open_live_log">实时日志</string>
-    <string name="live_log_title">实时日志 · ppSR 4.6.51</string>
+    <string name="live_log_title">实时日志 · ppSR 4.6.53PS</string>
     <string name="live_log_waiting">等待服务器日志，请先启动服务器...</string>
     <string name="live_log_empty">日志已清空，等待新的输出...</string>
     <string name="live_log_truncated">仅显示最近 128 KB 日志</string>
@@ -56,6 +61,7 @@
     <string name="cancel">取消</string>
     <string name="back">返回</string>
     <string name="storage_permission">请允许访问所有文件，用于创建 Download/ppSR</string>
+    <string name="storage_initializing">正在准备服务文件，请稍后再启动</string>
     <string name="trailblazer_path">开拓者命途</string>
     <string name="march_path">三月七命途</string>
     <string name="switched_path">已切换到：%1$s，重启服务后生效</string>
@@ -102,6 +108,25 @@
     <string name="notification_title">ppSR 游戏服务器</string>
     <string name="misc_file_outside">文件不在 misc 目录中</string>
     <string name="server_password_invalid">服务器密码错误或已过期，请输入服主发布的新密码</string>
+    <string name="check_server_update">检查更新（服务器文件）</string>
+    <string name="update_payload_checking">正在下载服务器文件</string>
+    <string name="update_payload_done_title">服务器文件已更新</string>
+    <string name="update_payload_done">已替换 %1$d 个文件 重启服务器后生效</string>
+    <string name="update_payload_failed">更新失败 %1$s</string>
+    <string name="update_payload_restart">立即重启服务器</string>
+    <string name="update_required_title">需要更新</string>
+    <string name="update_required_message">网盘有新安装包 %1$s\n\n请在 %2$d 秒内去更新 超时后 App 会锁定\n\n更新完重新打开 App 就能继续用</string>
+    <string name="update_locked_title">App 已锁定</string>
+    <string name="update_locked_message">超过 1 分钟没更新 App 已锁定\n\n去夸克网盘下载安装 %1$s 装完重新打开就能解锁</string>
+    <string name="update_required_action">前往夸克网盘</string>
+    <string name="update_required_open_failed">打不开夸克网盘 检查一下浏览器或夸克网盘</string>
+    <string name="update_check_wait">正在检查更新 稍等一下</string>
+    <string name="update_check_failed_title">无法检查更新</string>
+    <string name="update_check_failed_message">检查更新失败 请联网后重新打开 App\n\n或者输入解锁码继续使用</string>
+    <string name="update_unlock_hint">输入解锁码</string>
+    <string name="update_unlock_action">解锁</string>
+    <string name="update_unlock_wrong">解锁码错误</string>
+    <string name="update_unlock_ok">已解锁</string>
 
     <string-array name="path_labels">
         <item>毁灭</item><item>巡猎</item><item>智识</item><item>同谐</item><item>虚无</item><item>存护</item><item>丰饶</item><item>记忆</item><item>欢愉</item>

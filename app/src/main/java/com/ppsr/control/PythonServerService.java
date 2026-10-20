@@ -25,8 +25,20 @@ public class PythonServerService extends Service {
     static final String EXTRA_ERROR = "error";
     private static final String CHANNEL = "ppsr_server";
     private static final int NOTIFICATION_ID = 21000;
-    private static final long START_TIMEOUT_MS = 120_000;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private static final long START_TIMEOUT_MS = 300_000;
+    // The Python interpreter runs on this executor thread, so its stack is the
+    // C stack for the embedded CPython. dataclasses_json decodes freesr-data.json
+    // with deeply recursive _decode_dataclass/_decode_generic calls; on Python
+    // 3.12+ the overflow guard relies on knowing the thread's real stack bounds,
+    // and a default (~1 MB) background thread segfaulted instead of raising
+    // RecursionError. A large stack keeps the guard effective and gives the
+    // decoder room to finish.
+    private static final long SERVER_THREAD_STACK_BYTES = 64L * 1024 * 1024;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(task -> {
+        Thread thread = new Thread(null, task, "ppsr-python", SERVER_THREAD_STACK_BYTES);
+        thread.setDaemon(false);
+        return thread;
+    });
     private final Handler handler = new Handler(android.os.Looper.getMainLooper());
     private static volatile boolean running;
     private static volatile boolean starting;

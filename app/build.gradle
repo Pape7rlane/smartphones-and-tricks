@@ -11,6 +11,12 @@ def syncServerAssets = tasks.register('syncServerAssets', Sync) {
     into(serverAssets.map { it.dir('server') })
 }
 
+def releaseInfoAssets = layout.buildDirectory.dir('generated/releaseInfoAssets')
+def syncReleaseInfo = tasks.register('syncReleaseInfo', Sync) {
+    from(rootProject.file('update.json'))
+    into(releaseInfoAssets)
+}
+
 android {
     namespace 'com.ppsr.control'
     compileSdk 35
@@ -18,11 +24,11 @@ android {
         applicationId 'com.ppsr.control'
         minSdk 26
         targetSdk 35
-        versionCode 6
-        versionName '4.6.51'
-        ndk { abiFilters 'arm64-v8a', 'x86_64' }
+        versionCode 23
+        versionName 'beta'
+        ndk { abiFilters 'arm64-v8a' }
     }
-    sourceSets { main { assets.srcDir(serverAssets) } }
+    sourceSets { main { assets.srcDir(serverAssets); assets.srcDir(releaseInfoAssets) } }
     buildTypes {
         release {
             minifyEnabled false
@@ -35,11 +41,28 @@ android {
 chaquopy {
     defaultConfig {
         version = '3.14'
+        // Chaquopy normally imports every module straight out of the APK through
+        // its JNI-backed AssetFinder, which is far slower than the normal
+        // filesystem importer (~150-200 ms per module on device). Extracting the
+        // packages makes the same modules available as real files under
+        // files/chaquopy/AssetFinder, and app_bridge then imports them from disk
+        // (see _prefer_extracted_modules). Extraction itself only runs once: on
+        // later launches unchanged files are skipped.
+        extractPackages '*'
         pip {
             // MarkupSafe doesn't currently publish a Python 3.14 Android wheel.
             // All dependencies are explicit so its official pure-Python fallback
             // can be bundled from app/src/main/python/markupsafe.
             options '--no-deps'
+            // Native protobuf wheels cross-compiled for Android (see
+            // .github/workflows/android.yml). When present, pip picks them over
+            // the pure-Python wheel so the server gets the fast upb backend;
+            // when absent, the build still works with pure Python.
+            // Use an absolute path: a relative --find-links value is resolved
+            // against pip's working directory (the app module), not the repo
+            // root, so the plain 'wheels' never resolved and pip silently fell
+            // back to the pure-Python wheel from PyPI.
+            options '--find-links', rootProject.file('wheels').absolutePath
             install 'Flask==3.1.2'
             install 'Werkzeug==3.1.3'
             install 'Jinja2==3.1.6'
@@ -65,4 +88,4 @@ chaquopy {
     }
 }
 
-tasks.named('preBuild').configure { dependsOn(syncServerAssets) }
+tasks.named('preBuild').configure { dependsOn(syncServerAssets, syncReleaseInfo) }

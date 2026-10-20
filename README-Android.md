@@ -3,10 +3,23 @@
 这是无需 Termux 的独立 Android APK 项目。APK 内嵌 Python 3.14、`build/` 中的服务端、
 Flask、Requests、Protobuf 和 dataclasses-json，并通过 Android 前台服务运行。
 
+## 公告与强制更新
+
+仓库根目录的 `update.json` 可直接修改公告和更新链接。`announcement_title`、
+`announcement_body` 是公告内容，`announcement_id` 改变后会视为新公告；用户勾选
+“不再显示此公告”后，旧编号不会再次弹出。
+
+`latest_version_code` 要和 `app/build.gradle` 的 `versionCode` 保持一致。已安装版本号
+更小时，App 会强制弹出更新窗口并打开 `download_url`（夸克网盘链接）；当前配置使用
+`https://pan.quark.cn/s/e99add200b01`。纯公告修改只需推送根目录 `update.json`，无需重新构建。
+发布 APK 时先递增 `app/build.gradle` 的 `versionCode` 并等待云构建，再将 APK 上传夸克，
+最后更新 `latest_version_code` 和 `download_url`。此 APK 起支持远程强制更新；更早的 APK
+需要先手动安装一次。
+
 ## 云端编译
 
 1. 将整个目录（必须包含 `build/`）推送到 GitHub 仓库。
-2. 推送到 `ppSR-4.6.51-测试UI`、`main` 或 `master` 后会自动触发
+2. 推送到 `termux-fast-startup`、`ppSR-4.6.51-测试UI`、`main` 或 `master` 后会自动触发
    **Build standalone Android APK**；也可以在 Actions 页面手动运行。
 3. 构建完成后下载 `ppSR-Standalone-APKs` artifact，其中同时包含 debug 和 release APK。
 
@@ -29,7 +42,7 @@ Flask、Requests、Protobuf 和 dataclasses-json，并通过 Android 前台服�
 ## 界面与功能
 
 启动页参考 `Pape7rlane/paper-airplane`：全屏图片背景、暗色遮罩、白色标题、服务器状态和
-半透明功能按钮。页面标题为 `ppSR`，版本为 `4.6.51`。
+半透明功能按钮。页面标题为 `ppSR`，版本为 `4.6.53PS`。
 
 - 直接启动/停止 `127.0.0.1:21000` 本地服务。
 - 切换开拓者和三月七命途。
@@ -67,7 +80,9 @@ Flask、Requests、Protobuf 和 dataclasses-json，并通过 Android 前台服�
 
 地图及坐标数据来自
 [CAtlas0784/Escape-penacony](https://github.com/CAtlas0784/Escape-penacony)
-`main@9acf35a`，对应 ppSR 4.6.5X 数据结构。
+`main@3c8d5ab`，对应 ppSR 4.6.5X 数据结构。其中 `planarcadia` 的 Starforster 和
+Moment of Joy 两张地图标记为 `is_beta`，仅适用于 4.7 Beta 测试端；在 4.6.x 正式端选择
+这两张地图会卡在列车加载界面，其余 83 张不受影响。
 
 ## 从原地图仓库更新
 
@@ -118,7 +133,7 @@ Manifest 和图标切换功能直接读取 `res/drawable-nodpi` 中的图片：
 - `icon_default.png`：默认桌面图标。
 - `icon_round.png`：圆形图标选项。
 - `icon_alt.png`：备用图标选项。
-- `background.jpg`：启动界面全屏背景。
+- `background.webp`：启动界面全屏背景。
 
-替换同名 PNG/JPG 后重新云编译，不需要修改 Java。App 内可在三套已打包 PNG 之间切换。
+替换同名 WebP 背景或 PNG 图标后重新云编译，不需要修改 Java。App 内可在三套已打包 PNG 之间切换。
 原 `run.sh` 继续保留，但 APK 不会执行它。
