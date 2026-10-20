@@ -120,6 +120,7 @@
     <string name="update_locked_message">超过 1 分钟没更新 App 已锁定\n\n去夸克网盘下载安装 %1$s 装完重新打开就能解锁</string>
     <string name="update_required_action">前往夸克网盘</string>
     <string name="update_required_open_failed">打不开夸克网盘 检查一下浏览器或夸克网盘</string>
+    <string name="update_check_wait">正在检查更新 稍等一下</string>
     <string name="update_unlock_hint">输入解锁码</string>
     <string name="update_unlock_action">解锁</string>
     <string name="update_unlock_wrong">解锁码错误</string>

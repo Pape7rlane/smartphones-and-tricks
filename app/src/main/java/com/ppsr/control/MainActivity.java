@@ -62,6 +62,7 @@ public class MainActivity extends Activity {
     private boolean storageInitializationInProgress;
     private boolean notificationPermissionRequested;
     private boolean payloadUpdateRunning;
+    private boolean updateCheckRunning;
     private AlertDialog updateLockDialog;
     private Runnable updateLockTicker;
     private boolean activityStarted;
@@ -215,7 +216,9 @@ public class MainActivity extends Activity {
 
     private void checkQuarkApk() {
         Context appContext = getApplicationContext();
+        updateCheckRunning = true;
         releaseExecutor.execute(() -> {
+            try {
             SharedPreferences preferences = appContext.getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE);
             long installTime = currentInstallTime();
             String pending = preferences.getString(PENDING_SIGNATURE, "");
@@ -248,6 +251,9 @@ public class MainActivity extends Activity {
                 });
             } catch (Exception ignored) {
                 // Share folder unreachable: keep running the current build.
+            }
+            } finally {
+                runOnUiThread(() -> updateCheckRunning = false);
             }
         });
     }
@@ -316,6 +322,7 @@ public class MainActivity extends Activity {
         dialog.setOnDismissListener(ignored -> {
             if (updateLockDialog == dialog) updateLockDialog = null;
         });
+        stopServer();
         dialog.show();
         startUpdateLockCountdown(dialog, name);
     }
@@ -592,6 +599,10 @@ public class MainActivity extends Activity {
 
     private void startServer() {
         if (updateLockDialog != null && updateLockDialog.isShowing()) return;
+        if (updateCheckRunning) {
+            toast(ui(R.string.update_check_wait));
+            return;
+        }
         if (!ensureStorageAccess()) return;
         Intent intent = new Intent(this, PythonServerService.class).setAction(PythonServerService.ACTION_START);
         if (Build.VERSION.SDK_INT >= 26) startForegroundService(intent); else startService(intent);
