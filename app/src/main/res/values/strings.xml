@@ -121,6 +121,8 @@
     <string name="update_required_action">前往夸克网盘</string>
     <string name="update_required_open_failed">打不开夸克网盘 检查一下浏览器或夸克网盘</string>
     <string name="update_check_wait">正在检查更新 稍等一下</string>
+    <string name="update_check_failed_title">无法检查更新</string>
+    <string name="update_check_failed_message">检查更新失败 请联网后重新打开 App\n\n或者输入解锁码继续使用</string>
     <string name="update_unlock_hint">输入解锁码</string>
     <string name="update_unlock_action">解锁</string>
     <string name="update_unlock_wrong">解锁码错误</string>

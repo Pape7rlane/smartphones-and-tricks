@@ -249,8 +249,14 @@ public class MainActivity extends Activity {
                         showQuarkUpdateDialog(apk.name);
                     }
                 });
-            } catch (Exception ignored) {
-                // Share folder unreachable: keep running the current build.
+            } catch (Exception failure) {
+                // Cannot verify the published APK: stay locked instead of trusting the client.
+                runOnUiThread(() -> {
+                    if (activityStarted && !isFinishing() && !isDestroyed()) {
+                        showLockedDialog(ui(R.string.update_check_failed_title),
+                                ui(R.string.update_check_failed_message));
+                    }
+                });
             }
             } finally {
                 runOnUiThread(() -> updateCheckRunning = false);
@@ -345,16 +351,20 @@ public class MainActivity extends Activity {
         startupHandler.post(updateLockTicker);
     }
 
-    /** Locked state: only an unlock code or the share link gets the user out. */
     private void showLockedDialog(String apkName) {
+        String name = apkName.isEmpty() ? "ppSR" : apkName;
+        showLockedDialog(ui(R.string.update_locked_title), ui(R.string.update_locked_message, name));
+    }
+
+    /** Locked state: only an unlock code or the share link gets the user out. */
+    private void showLockedDialog(String title, String text) {
         if (isFinishing() || isDestroyed()) return;
         if (updateLockDialog != null && updateLockDialog.isShowing()) updateLockDialog.dismiss();
-        final String name = apkName.isEmpty() ? "ppSR" : apkName;
         int padding = Math.round(16 * getResources().getDisplayMetrics().density);
         LinearLayout content = new LinearLayout(this);
         content.setOrientation(LinearLayout.VERTICAL);
         TextView message = new TextView(this);
-        message.setText(ui(R.string.update_locked_message, name));
+        message.setText(text);
         message.setPadding(padding, padding, padding, 0);
         final EditText input = new EditText(this);
         input.setHint(ui(R.string.update_unlock_hint));
@@ -364,7 +374,7 @@ public class MainActivity extends Activity {
         content.addView(input);
 
         final AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(ui(R.string.update_locked_title))
+                .setTitle(title)
                 .setView(content)
                 .setPositiveButton(ui(R.string.update_unlock_action), null)
                 .setNegativeButton(ui(R.string.update_required_action), null)
@@ -402,13 +412,14 @@ public class MainActivity extends Activity {
         String expected = info == null ? "" : info.unlockCode;
         if (expected.isEmpty() || !expected.equalsIgnoreCase(code)) return false;
         SharedPreferences preferences = getSharedPreferences(RELEASE_PREFS, MODE_PRIVATE);
-        preferences.edit()
-                .putString(ReleaseInfo.QUARK_APK_SIGNATURE, preferences.getString(PENDING_SIGNATURE, ""))
+        String pending = preferences.getString(PENDING_SIGNATURE, "");
+        SharedPreferences.Editor editor = preferences.edit()
                 .remove(PENDING_SIGNATURE)
                 .remove(PENDING_NAME)
                 .remove(PENDING_INSTALL_TIME)
-                .remove(PENDING_STARTED_AT)
-                .apply();
+                .remove(PENDING_STARTED_AT);
+        if (!pending.isEmpty()) editor.putString(ReleaseInfo.QUARK_APK_SIGNATURE, pending);
+        editor.apply();
         return true;
     }
 
