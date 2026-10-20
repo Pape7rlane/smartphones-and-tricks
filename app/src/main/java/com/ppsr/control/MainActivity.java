@@ -238,6 +238,11 @@ public class MainActivity extends Activity {
                 ReleaseInfo.ShareApk apk = ReleaseInfo.fetchQuarkApk();
                 String stored = preferences.getString(ReleaseInfo.QUARK_APK_SIGNATURE, "");
                 if (apk.signature.equals(stored)) return;
+                if (apk.size > 0 && apk.size == currentApkSize()) {
+                    // Installed build is the one published in the share: nothing to do.
+                    preferences.edit().putString(ReleaseInfo.QUARK_APK_SIGNATURE, apk.signature).apply();
+                    return;
+                }
                 preferences.edit()
                         .putString(PENDING_SIGNATURE, apk.signature)
                         .putString(PENDING_NAME, apk.name)
@@ -271,7 +276,7 @@ public class MainActivity extends Activity {
     private boolean pendingMatchesInstalledApk(SharedPreferences preferences, long installTime) {
         try {
             ReleaseInfo.ShareApk apk = ReleaseInfo.fetchQuarkApk();
-            long installedSize = new File(getPackageCodePath()).length();
+            long installedSize = currentApkSize();
             if (apk.size <= 0 || apk.size != installedSize) {
                 // Wrong APK installed: keep the lock and restart the grace period.
                 preferences.edit()
@@ -294,6 +299,11 @@ public class MainActivity extends Activity {
             // Cannot verify without the share listing: stay locked.
             return false;
         }
+    }
+
+    /** Size of the installed base.apk, used to recognise the published build. */
+    private long currentApkSize() {
+        return new File(getPackageCodePath()).length();
     }
 
     private long currentInstallTime() {
