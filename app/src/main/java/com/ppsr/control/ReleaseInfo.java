@@ -119,7 +119,7 @@ final class ReleaseInfo {
         }
     }
 
-    /** Lists the share folder and fingerprints its newest APK. */
+    /** Lists the share folder and fingerprints its newest APK; null when none is published. */
     static ShareApk fetchQuarkApk() throws IOException {
         try {
             JSONObject token = new JSONObject(httpString(QUARK_API + "/token?pr=ucpro&fr=pc",
@@ -147,7 +147,7 @@ final class ReleaseInfo {
                     newest = file;
                 }
             }
-            if (newest == null) throw new IOException("No APK in the Quark share");
+            if (newest == null) return null; // Nothing published yet: not a failure.
             String signature = newest.optString("fid", "") + ":"
                     + newest.optLong("updated_at", 0) + ":" + newest.optLong("size", 0);
             return new ShareApk(signature, newest.optString("file_name", ""), newest.optLong("size", 0));

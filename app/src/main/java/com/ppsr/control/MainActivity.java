@@ -236,6 +236,7 @@ public class MainActivity extends Activity {
             }
             try {
                 ReleaseInfo.ShareApk apk = ReleaseInfo.fetchQuarkApk();
+                if (apk == null) return;
                 String stored = preferences.getString(ReleaseInfo.QUARK_APK_SIGNATURE, "");
                 if (apk.signature.equals(stored)) return;
                 if (apk.size > 0 && apk.size == currentApkSize()) {
@@ -276,6 +277,7 @@ public class MainActivity extends Activity {
     private boolean pendingMatchesInstalledApk(SharedPreferences preferences, long installTime) {
         try {
             ReleaseInfo.ShareApk apk = ReleaseInfo.fetchQuarkApk();
+            if (apk == null) return false;
             long installedSize = currentApkSize();
             if (apk.size <= 0 || apk.size != installedSize) {
                 // Wrong APK installed: keep the lock and restart the grace period.
