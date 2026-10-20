@@ -56,6 +56,7 @@ public class MainActivity extends Activity {
     private boolean storageInitialized;
     private boolean storageInitializationInProgress;
     private boolean notificationPermissionRequested;
+    private boolean payloadUpdateRunning;
     private boolean activityStarted;
     private ReleaseInfo releaseInfo;
     private AlertDialog announcementDialog;
@@ -153,6 +154,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.iconButton).setOnClickListener(v -> chooseIcon());
         findViewById(R.id.miscButton).setOnClickListener(v -> openMisc());
         findViewById(R.id.liveLogButton).setOnClickListener(v -> showLiveLog());
+        findViewById(R.id.checkUpdateButton).setOnClickListener(v -> checkServerPayloadUpdate());
         findViewById(R.id.fireflySrtoolsButton).setOnClickListener(
                 v -> openWebsite(FIREFLY_SRTOOLS_URL));
         findViewById(R.id.neonteamSrtoolsButton).setOnClickListener(
@@ -375,6 +377,41 @@ public class MainActivity extends Activity {
                     }
                 }));
         dialog.show();
+    }
+
+    private void checkServerPayloadUpdate() {
+        if (payloadUpdateRunning) return;
+        payloadUpdateRunning = true;
+        toast(ui(R.string.update_payload_checking));
+        startupExecutor.execute(() -> {
+            int files = -1;
+            String error = null;
+            try {
+                files = PayloadUpdater.update(this);
+            } catch (Exception failure) {
+                String detail = failure.getMessage();
+                error = detail == null ? failure.getClass().getSimpleName() : detail;
+            }
+            int count = files;
+            String message = error;
+            runOnUiThread(() -> {
+                payloadUpdateRunning = false;
+                if (isFinishing() || isDestroyed()) return;
+                if (message != null) {
+                    toast(ui(R.string.update_payload_failed, message));
+                    return;
+                }
+                new AlertDialog.Builder(this)
+                        .setTitle(ui(R.string.update_payload_done_title))
+                        .setMessage(ui(R.string.update_payload_done, count))
+                        .setPositiveButton(ui(R.string.update_payload_restart), (dialog, which) -> {
+                            stopServer();
+                            startupHandler.postDelayed(this::startServer, 1500);
+                        })
+                        .setNegativeButton(ui(R.string.close), null)
+                        .show();
+            });
+        });
     }
 
     private void startServer() {

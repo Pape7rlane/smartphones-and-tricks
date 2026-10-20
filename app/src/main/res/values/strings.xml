@@ -108,6 +108,12 @@
     <string name="notification_title">ppSR 游戏服务器</string>
     <string name="misc_file_outside">文件不在 misc 目录中</string>
     <string name="server_password_invalid">服务器密码错误或已过期，请输入服主发布的新密码</string>
+    <string name="check_server_update">检查更新（服务器文件）</string>
+    <string name="update_payload_checking">正在下载并替换服务器文件…</string>
+    <string name="update_payload_done_title">服务器文件已更新</string>
+    <string name="update_payload_done">已替换 %1$d 个文件。重启服务器后生效。</string>
+    <string name="update_payload_failed">更新失败：%1$s</string>
+    <string name="update_payload_restart">立即重启服务器</string>
 
     <string-array name="path_labels">
         <item>毁灭</item><item>巡猎</item><item>智识</item><item>同谐</item><item>虚无</item><item>存护</item><item>丰饶</item><item>记忆</item><item>欢愉</item>

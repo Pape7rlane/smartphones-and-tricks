@@ -200,6 +200,7 @@
                 <TextView android:id="@+id/iconButton" style="@style/PpSRFunctionButton" android:text="@string/change_apk_icon" />
                 <TextView android:id="@+id/miscButton" style="@style/PpSRFunctionButton" android:text="@string/open_misc_files" />
                 <TextView android:id="@+id/liveLogButton" style="@style/PpSRFunctionButton" android:text="@string/open_live_log" />
+                <TextView android:id="@+id/checkUpdateButton" style="@style/PpSRFunctionButton" android:text="@string/check_server_update" />
                 <TextView
                     android:id="@+id/fireflySrtoolsButton"
                     style="@style/PpSRToolLinkButton"
