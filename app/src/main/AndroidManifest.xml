@@ -14,7 +14,7 @@
         android:name=".PpSRApplication"
         android:allowBackup="true"
         android:icon="@drawable/icon_default"
-        android:label="ppSR 4.6.53PS 服务器"
+        android:label="ppSR Beta Server"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@drawable/icon_round"
         android:supportsRtl="true"
