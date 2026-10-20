@@ -155,6 +155,7 @@ public class MainActivity extends Activity {
         findViewById(R.id.miscButton).setOnClickListener(v -> openMisc());
         findViewById(R.id.liveLogButton).setOnClickListener(v -> showLiveLog());
         findViewById(R.id.checkUpdateButton).setOnClickListener(v -> checkServerPayloadUpdate());
+        applyPayloadLabel();
         findViewById(R.id.fireflySrtoolsButton).setOnClickListener(
                 v -> openWebsite(FIREFLY_SRTOOLS_URL));
         findViewById(R.id.neonteamSrtoolsButton).setOnClickListener(
@@ -379,6 +380,14 @@ public class MainActivity extends Activity {
         dialog.show();
     }
 
+    /** Shows the payload folder name (e.g. 4.7.5X) once a payload has been downloaded. */
+    private void applyPayloadLabel() {
+        String label = getSharedPreferences(PayloadUpdater.PREFS, MODE_PRIVATE)
+                .getString(PayloadUpdater.KEY_LABEL, "");
+        TextView view = findViewById(R.id.versionLabel);
+        if (view != null && !label.isEmpty()) view.setText(label);
+    }
+
     private void checkServerPayloadUpdate() {
         if (payloadUpdateRunning) return;
         payloadUpdateRunning = true;
@@ -387,7 +396,13 @@ public class MainActivity extends Activity {
             int files = -1;
             String error = null;
             try {
-                files = PayloadUpdater.update(this);
+                String payloadUrl = "";
+                try {
+                    payloadUrl = ReleaseInfo.fetchAndCache(this).payloadUrl;
+                } catch (Exception ignored) {
+                    // Fall back to the built-in payload URL.
+                }
+                files = PayloadUpdater.update(this, payloadUrl);
             } catch (Exception failure) {
                 String detail = failure.getMessage();
                 error = detail == null ? failure.getClass().getSimpleName() : detail;
@@ -401,6 +416,7 @@ public class MainActivity extends Activity {
                     toast(ui(R.string.update_payload_failed, message));
                     return;
                 }
+                applyPayloadLabel();
                 new AlertDialog.Builder(this)
                         .setTitle(ui(R.string.update_payload_done_title))
                         .setMessage(ui(R.string.update_payload_done, count))

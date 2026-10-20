@@ -16,19 +16,22 @@ import java.util.zip.ZipInputStream;
 
 /** Downloads the published server payload zip and swaps it in. */
 final class PayloadUpdater {
-    static final String ZIP_URL = "https://file.garden/aewBviVxx2XDWgM-/4.6.5X/build.zip";
+    static final String DEFAULT_ZIP_URL = "https://file.garden/aewBviVxx2XDWgM-/4.6.5X/build.zip";
+    static final String PREFS = "payload_update";
+    static final String KEY_LABEL = "label";
     private static final String ZIP_ROOT = "build/";
     private static final long MAX_ARCHIVE_BYTES = 64L * 1024 * 1024;
 
     private PayloadUpdater() {}
 
     /** Downloads and installs the payload; returns how many files were written. */
-    static int update(Context context) throws IOException {
+    static int update(Context context, String url) throws IOException {
+        String source = url == null || url.trim().isEmpty() ? DEFAULT_ZIP_URL : url.trim();
         File cache = context.getCacheDir();
         File archive = new File(cache, "ppsr-payload.zip");
         File staging = new File(cache, "ppsr-payload");
         try {
-            download(archive);
+            download(archive, source);
             deleteTree(staging);
             int files = extract(archive, staging);
             if (!new File(staging, "ppsr.pyc").isFile()
@@ -36,6 +39,11 @@ final class PayloadUpdater {
                 throw new IOException("压缩包里没有服务器文件");
             }
             ServerFiles.installFromDirectory(context, staging);
+            String label = labelOf(source);
+            if (!label.isEmpty()) {
+                context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                        .putString(KEY_LABEL, label).apply();
+            }
             return files;
         } finally {
             archive.delete();
@@ -43,10 +51,24 @@ final class PayloadUpdater {
         }
     }
 
-    private static void download(File target) throws IOException {
+    /** "…/4.7.5X/build.zip" -> "4.7.5X", used as the version label. */
+    static String labelOf(String url) {
+        String value = url.trim();
+        int end = value.length();
+        while (end > 0 && value.charAt(end - 1) == '/') end--;
+        value = value.substring(0, end);
+        int lastSlash = value.lastIndexOf('/');
+        if (lastSlash <= 0) return "";
+        value = value.substring(0, lastSlash);
+        int previousSlash = value.lastIndexOf('/');
+        String segment = previousSlash < 0 ? value : value.substring(previousSlash + 1);
+        return segment.contains("://") ? "" : segment;
+    }
+
+    private static void download(File target, String url) throws IOException {
         HttpURLConnection connection = null;
         try {
-            connection = (HttpURLConnection) new URL(ZIP_URL).openConnection();
+            connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setConnectTimeout(15000);
             connection.setReadTimeout(30000);
             connection.setInstanceFollowRedirects(true);

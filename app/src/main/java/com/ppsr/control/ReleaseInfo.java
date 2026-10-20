@@ -30,6 +30,7 @@ final class ReleaseInfo {
     final long latestVersionCode;
     final String latestVersionName;
     final String downloadUrl;
+    final String payloadUrl;
     final String announcementId;
     final String announcementTitle;
     final String announcementBody;
@@ -40,6 +41,9 @@ final class ReleaseInfo {
         String candidateUrl = json.optString("download_url", "").trim();
         Uri uri = Uri.parse(candidateUrl);
         downloadUrl = "https".equalsIgnoreCase(uri.getScheme()) ? candidateUrl : "";
+        String candidatePayload = json.optString("payload_url", "").trim();
+        Uri payloadUri = Uri.parse(candidatePayload);
+        payloadUrl = "https".equalsIgnoreCase(payloadUri.getScheme()) ? candidatePayload : "";
         announcementId = json.optString("announcement_id", "").trim();
         announcementTitle = json.optString("announcement_title", "").trim();
         announcementBody = json.optString("announcement_body", "").trim();
